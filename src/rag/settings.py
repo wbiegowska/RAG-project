@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # Data
     rulebook_pdf: Path = DATA_DIR / "Core Rules.pdf"
     rulebook_md: Path = DATA_DIR / "processed" / "Core_rules_parsed.md"
+    rulebook_clean_md: Path = DATA_DIR / "processed" / "Core_rules_clean.md"
     sqlite_path: Path = DATA_DIR / "wahadb.sqlite"
     data_dictionary: Path = DATA_DIR / "SQL_AGENT_DATA_DICTIONARY.md"
 
