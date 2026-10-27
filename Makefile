@@ -1,4 +1,4 @@
-.PHONY: install parse index chat test lint format testset eval
+.PHONY: install parse clean-md index chat test lint format testset eval
 
 install:  ## install everything (app, parsing, evaluation, dev tools) + git hooks
 	uv sync --all-groups
@@ -7,7 +7,10 @@ install:  ## install everything (app, parsing, evaluation, dev tools) + git hook
 parse:  ## PDF -> data/processed/Core_rules_parsed.md (slow, result is committed)
 	uv run --group parse python scripts/parse.py
 
-index:  ## build the ChromaDB index from the parsed rulebook
+clean-md:  ## clean the parsed rulebook -> data/processed/Core_rules_clean.md
+	uv run python scripts/clean.py
+
+index:  ## build the ChromaDB index from the cleaned rulebook
 	uv run python scripts/index.py
 
 chat:  ## start the chat interface

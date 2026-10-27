@@ -11,8 +11,7 @@ from docling.datamodel.pipeline_options import (
 )
 from docling.document_converter import DocumentConverter, PdfFormatOption
 
-# Inserted between pages so the later steps can recover page numbers.
-PAGE_BREAK = "<!-- page break -->"
+from rag.impl.parser.markers import PAGE_BREAK
 
 
 def build_converter() -> DocumentConverter:
