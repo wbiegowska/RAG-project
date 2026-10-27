@@ -17,6 +17,10 @@ Docling gets most of the text right but it leaves some noise behind, this is wha
 - heading levels. Docling guesses them from the font sizes and it's mostly ok, but the
   numbered steps ("1. HIT ROLL") end up at the top level. The title becomes "#",
   everything else moves up one level and numbered steps go one level under their section.
+  Two more fixes we found when looking at the chunks: in the terrain chapter every terrain
+  type (WOODS, RUINS...) has the same sub-headings (MOVEMENT, VISIBILITY, BENEFIT OF COVER)
+  but at the same level as the terrain type, so the chunks didnt say which terrain they
+  were about. And AIRCRAFT (its own pages, 53-54) ended up under EXAMPLE BATTLEFIELDS.
 
 The page breaks from docling are turned into "<!-- page: N -->" so that the chunker
 knows which page each chunk comes from.
@@ -38,6 +42,26 @@ INLINE_BULLET = re.compile(r"\s+■\s*")  # 2 bullet points stuck on the same li
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
 NUMBERED_STEP = re.compile(r"^\d+\.?\s+\S")  # "1. COMMAND" but also "1 MUSTER ARMIES"
 MAX_SECTION_LEVEL = 4  # anything deeper is a single rule, not a section
+
+# the terrain details are put one level under the terrain type they belong to
+TERRAIN_TYPES = {
+    "CRATERS AND RUBBLE",
+    "BARRICADES AND FUEL PIPES",
+    "BATTLEFIELD DEBRIS AND STATUARY",
+    "HILLS, INDUSTRIAL STRUCTURES, SEALED BUILDINGS AND ARMOURED CONTAINERS",
+    "WOODS",
+    "RUINS",
+}
+TERRAIN_DETAILS = {
+    "FOOTPRINT",
+    "PLUNGING FIRE",
+    "MOVEMENT",
+    "VISIBILITY",
+    "ENGAGEMENT RANGE",
+    "BENEFIT OF COVER",
+}
+# headings that are a chapter of their own even if docling made them smaller
+CHAPTERS = {"AIRCRAFT"}
 
 
 def clean_markdown(markdown: str) -> str:
@@ -68,6 +92,7 @@ def clean_line(line: str) -> str | None:
 def fix_heading_levels(text: str) -> str:
     """Fixes the heading levels so they make sense as a hierarchy (see top of the file)"""
     section_level = 1  # level of the last section heading, numbered steps go under it
+    terrain_level = None  # level of the current terrain type, None if we're not in one
     output = []
     for line in text.split("\n"):
         match = HEADING.match(line)
@@ -77,11 +102,20 @@ def fix_heading_levels(text: str) -> str:
         level, title = len(match.group(1)), match.group(2).strip()
         if title == TITLE:
             new_level = 1
+        elif title in CHAPTERS:
+            new_level = section_level = 2
         elif NUMBERED_STEP.match(title):
             new_level = min(section_level + 1, 6)
+        elif terrain_level is not None and title in TERRAIN_DETAILS:
+            new_level = min(terrain_level + 1, 6)
         else:
             new_level = max(level - 1, 2)
             if new_level <= MAX_SECTION_LEVEL:
                 section_level = new_level
+
+        if title in TERRAIN_TYPES:
+            terrain_level = new_level
+        elif title not in TERRAIN_DETAILS:
+            terrain_level = None
         output.append(f"{'#' * new_level} {title}")
     return "\n".join(output)

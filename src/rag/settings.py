@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     # Rulebook retrieval
     chroma_dir: Path = PROJECT_ROOT / "chroma"
     embedding_model: str = "BAAI/bge-small-en-v1.5"
+    chunk_size: int = 1200  # in characters, about 300 tokens (see chunker/markdown_chunker.py)
+    chunk_overlap: int = 150  # only used when a long section is split in several pieces
     top_k: int = 5
 
     # Monitoring

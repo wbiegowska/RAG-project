@@ -49,3 +49,24 @@ def test_skips_overview_page_and_adds_page_markers():
     assert "scrambled overview" not in cleaned
     assert "<!-- page: 5 -->" in cleaned
     assert "<!-- page: 2 -->" not in cleaned  # empty page, no marker
+
+
+def test_terrain_details_go_under_their_terrain_type():
+    text = "\n".join(
+        [
+            "### TERRAIN FEATURES",
+            "###### BENEFIT OF COVER",  # the general rule, stays where it is
+            "###### WOODS",
+            "###### MOVEMENT",
+            "###### BENEFIT OF COVER",
+            "##### AIRCRAFT",
+        ]
+    )
+    assert fix_heading_levels(text).split("\n") == [
+        "## TERRAIN FEATURES",
+        "##### BENEFIT OF COVER",
+        "##### WOODS",
+        "###### MOVEMENT",
+        "###### BENEFIT OF COVER",
+        "## AIRCRAFT",
+    ]

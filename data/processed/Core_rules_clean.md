@@ -1323,15 +1323,15 @@ Each time a ranged attack is allocated to a model that has the Benefit of Cover,
 
 Many battlefields bear the scars of heavy and sustained bombardment.
 
-##### MOVEMENT
+###### MOVEMENT
 
 Models can be moved over this terrain feature, as described on page 15.
 
-##### VISIBILITY
+###### VISIBILITY
 
 Normal visibility rules apply.
 
-##### BENEFIT OF COVER
+###### BENEFIT OF COVER
 
 Each time a ranged attack is allocated to an Infantry model that is wholly on top of this terrain feature, that model has the Benefit of Cover against that attack.
 
@@ -1341,20 +1341,20 @@ KEYWORDS: Area Terrain, Crater
 
 Fuel pipes and purpose-made defence lines are excellent positions from which to repel the enemy.
 
-##### MOVEMENT
+###### MOVEMENT
 
 Models can move up, over and down this terrain feature, but they cannot be set up or end any kind of move on top of it.
 
-##### VISIBILITY
+###### VISIBILITY
 
 Normal visibility rules apply.
 
-##### ENGAGEMENT RANGE
+###### ENGAGEMENT RANGE
 
 - In the Charge phase, if an enemy unit is within 1" of this terrain feature, a charging unit on the opposite side of this terrain feature can still make a Charge move against that enemy unit provided it ends that Charge move as close as possible to this terrain feature and within 2" of that enemy unit.
 - In the Fight phase, units are eligible to fight - and models can make attacks - if their target is on the opposite side of this terrain feature and within 2" of them.
 
-##### BENEFIT OF COVER
+###### BENEFIT OF COVER
 
 Each time a ranged attack is allocated to an Infantry model that is wholly within 3" of this terrain feature, if that model is not fully visible to every model in the attacking unit because of this terrain feature, that model has the Benefit of Cover against that attack.
 
@@ -1366,15 +1366,15 @@ KEYWORDS: Obstacle, Barricade
 
 Discarded industrial machinery, power reactors, ancient statuary and other detritus of war litter the battlefields of the 41st Millennium.
 
-##### MOVEMENT
+###### MOVEMENT
 
 Models can move up, over and down this terrain feature, but they cannot be set up or end any kind of move on top of it.
 
-##### VISIBILITY
+###### VISIBILITY
 
 Normal visibility rules apply.
 
-##### BENEFIT OF COVER
+###### BENEFIT OF COVER
 
 Each time a ranged attack is allocated to a model, if that model is not fully visible to every model in the attacking unit because of this terrain feature, that model has the Benefit of Cover against that attack.
 
@@ -1384,15 +1384,15 @@ KEYWORDS: Obstacle, Battlefield Debris
 
 A sealed bunker, Mechanicus gantry-way, armoured container or even a simple hill can shelter troops from the enemy's sight and provide a superior vantage point to those atop it.
 
-##### MOVEMENT
+###### MOVEMENT
 
 These terrain features are raised areas that models can be set up on top of or end a move on top of, provided the model's base does not overhang the terrain feature (if the model does not have a base, no part of that model that would be in contact with the battlefield at ground level can overhang that terrain feature). In addition, other terrain features can be set up on top of a Hill terrain feature, provided no part of those terrain features overhangs that Hill terrain feature.
 
-##### VISIBILITY
+###### VISIBILITY
 
 Normal visibility rules apply.
 
-##### BENEFIT OF COVER
+###### BENEFIT OF COVER
 
 Each time a ranged attack is allocated to a model, if that model is not fully visible to every model in the attacking unit because of this terrain feature, that model has the Benefit of Cover against that attack.
 
@@ -1404,21 +1404,21 @@ KEYWORDS: Hill
 
 Twisted woodlands and alien flora grow on many corpse-strewn battlefields, obscuring lines of fire and slowing the advance.
 
-##### FOOTPRINT
+###### FOOTPRINT
 
 When this terrain feature is set up on the battlefield, both players must agree upon its footprint - that is, the boundary of the terrain feature at ground level. This is so that players know when a model is wholly within this terrain feature. If this terrain feature is mounted on a base, then this will define its footprint.
 
-##### MOVEMENT
+###### MOVEMENT
 
 Models can be moved over this terrain feature, as described on page 15.
 
-##### VISIBILITY
+###### VISIBILITY
 
 Models and units that are wholly within this terrain feature are never considered to be fully visible to an observing model. Similarly, if a model that is not wholly within this terrain feature must look through or over this terrain feature in order to draw line of sight to another model, then that other model is never considered to be fully visible to that observing model, and so it will have the Benefit of Cover from this terrain feature. Aircraft and Towering models are exceptions to this - visibility to and from such models is determined normally, even if this terrain feature is wholly in between them and the observing model. Models that are wholly within this terrain feature can see out of it normally.
 
 KEYWORDS: Area Terrain, Woods
 
-##### BENEFIT OF COVER
+###### BENEFIT OF COVER
 
 Each time a ranged attack is allocated to a model, if that model is either wholly within this terrain feature, or it is not fully visible to every model in the attacking unit because of this terrain feature, that model has the Benefit of Cover against that attack.
 
@@ -1428,24 +1428,24 @@ Each time a ranged attack is allocated to a model, if that model is either wholl
 
 The galaxy is littered with the shattered remains of once-proud cities, and countless troops have sought shelter from enemy bombardment within their husks.
 
-##### FOOTPRINT
+###### FOOTPRINT
 
 When this terrain feature is set up on the battlefield, both players must agree upon its footprint - that is, the boundary of the terrain feature at ground level. This is so that players know when a model is wholly within this terrain feature. If this terrain feature is mounted on a base, then this will define its footprint.
 
-##### PLUNGING FIRE
+###### PLUNGING FIRE
 
 Each time a model that is wholly within this terrain feature makes a ranged attack, if that model is 6" or more vertically from ground level, and every model in the target unit is at ground level, improve the Armour Penetration characteristic of that attack by 1.
 
-##### MOVEMENT
+###### MOVEMENT
 
 - Infantry and Beast models can move through this terrain feature (walls, floors, ceilings, gantries, chains, etc.) as if it were not there. A model cannot end a move within a wall, a floor, etc.
 - Infantry, Beasts and Fly models can be set up or end a move on any floor level of this terrain feature, but if that level is not the ground floor, such models can only do so if their base does not overhang the floor at that level (if a model does not have a base, no part of that model that would be in contact with the battlefield at ground level can overhang that floor). All other models can only be set up or end a move on the ground floor of this terrain feature.
 
-##### VISIBILITY
+###### VISIBILITY
 
 Models cannot see over or through this terrain feature (i.e. a unit outside this terrain feature cannot draw line of sight to a target on the other side of it, even if it would be possible to draw line of sight to that target through open windows, doors, etc.). Aircraft and Towering models are exceptions to this - visibility to and from such models is determined normally, even if this terrain feature is wholly in between them and the observing model. Models can see into this terrain feature normally, and models that are wholly within this terrain feature can see out of it normally.
 
-##### BENEFIT OF COVER
+###### BENEFIT OF COVER
 
 Each time a ranged attack is allocated to a model, if that model is either wholly within this terrain feature, or it is not fully visible to every model in the attacking unit because of this terrain feature, that model has the Benefit of Cover against that attack.
 
@@ -1485,7 +1485,7 @@ Narrative Play Focused: This Combat Patrol battlefield has an ideal number and m
 
 <!-- page: 53 -->
 
-#### AIRCRAFT
+## AIRCRAFT
 
 The airspace above a battle is often thronged with activity. Fighters and bomber craft hurtle through the skies, duelling with one another and strafing enemy formations on the ground.
 
