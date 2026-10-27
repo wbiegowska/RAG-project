@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     # Google AI Studio (Gemini). Any value can be overridden in .env.
     google_api_key: str = ""
     llm_model: str = "gemini-3.8-flash"
+    llm_fallback_models: list[str] = ["gemini-3.6-flash", "gemini-3.5-flash-lite"]
     judge_model: str = "gemini-3.8-flash"
     llm_requests_per_minute: int = 10
 
