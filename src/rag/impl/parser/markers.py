@@ -1,7 +1,7 @@
-"""Markers shared by the parser, the cleaner and the chunker."""
+"""Page labels shared by the parser, the cleaner and the chunker."""
 
-# Written by Docling between two pages (see docling_parser.py).
+# written by docling between two pages
 PAGE_BREAK = "<!-- page break -->"
 
-# Written by the cleaner at the start of each page, e.g. "<!-- page: 12 -->".
+# written by the cleaner at the start of each page, ex "<!-- page: 12 -->"
 PAGE_MARKER = "<!-- page: {} -->"

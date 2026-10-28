@@ -1,6 +1,5 @@
-"""Project settings, read once from environment variables and the .env file.
-
-Import the shared instance everywhere: `from rag.settings import settings`.
+"""Settings, read from the environment and the .env file.
+Use the shared instance: `from rag.settings import settings`.
 """
 
 from pathlib import Path
@@ -18,7 +17,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # Google AI Studio (Gemini). Any value can be overridden in .env.
+    # gemini (google ai studio). Everything here can be overridden in .env
     google_api_key: str = ""
     llm_model: str = "gemini-3.8-flash"
     llm_fallback_models: list[str] = ["gemini-3.6-flash", "gemini-3.5-flash-lite"]
@@ -35,9 +34,15 @@ class Settings(BaseSettings):
     # Rulebook retrieval
     chroma_dir: Path = PROJECT_ROOT / "chroma"
     embedding_model: str = "BAAI/bge-small-en-v1.5"
-    chunk_size: int = 1200  # in characters, about 300 tokens (see chunker/markdown_chunker.py)
-    chunk_overlap: int = 150  # only used when a long section is split in several pieces
+    chunk_size: int = 1200  # characters, ~300 tokens (the embedding model reads max 512)
+    chunk_overlap: int = 150  # only when a long section is split
     top_k: int = 5
+    retrieval_candidates: int = 20  # chunks each search passes to the fusion/reranker
+    rrf_k: int = 60  # usual value for reciprocal rank fusion
+    use_bm25: bool = True
+    # off, it didnt help on our test questions (see docs/technical_choices.md)
+    use_reranker: bool = False
+    reranker_model: str = "cross-encoder/ms-marco-MiniLM-L6-v2"
 
     # Monitoring
     log_dir: Path = PROJECT_ROOT / "logs"

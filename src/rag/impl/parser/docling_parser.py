@@ -1,4 +1,4 @@
-"""Convert the rulebook PDF to markdown with Docling."""
+"""Converts the rulebook PDF to markdown with docling."""
 
 from pathlib import Path
 
@@ -15,9 +15,9 @@ from rag.impl.parser.markers import PAGE_BREAK
 
 
 def build_converter() -> DocumentConverter:
-    """Docling converter for the rulebook: accurate tables and inferred heading levels."""
+    """Docling converter with accurate tables and heading levels."""
     pipeline_options = PdfPipelineOptions(do_table_structure=True)
-    # Heading levels are inferred from font styles, which needs the parsed pages.
+    # needed for the heading levels, docling guesses them from the font styles
     pipeline_options.generate_parsed_pages = True
     pipeline_options.heading_hierarchy_options = HeadingHierarchyOptions(enabled=True)
     pipeline_options.table_structure_options = TableStructureOptions(mode=TableFormerMode.ACCURATE)
@@ -27,7 +27,7 @@ def build_converter() -> DocumentConverter:
 
 
 def parse_document(document_path: str | Path) -> str:
-    """Parse a PDF into markdown, with page break markers and without image placeholders."""
+    """Returns the markdown of the PDF, with page break markers and no image placeholders."""
     result = build_converter().convert(document_path)
     return result.document.export_to_markdown(
         image_placeholder="",

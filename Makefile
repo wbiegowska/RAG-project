@@ -1,4 +1,4 @@
-.PHONY: install parse clean-md index search chat test lint format testset eval
+.PHONY: install parse clean-md index search compare-retrieval chat test lint format testset eval
 
 install:  ## install everything (app, parsing, evaluation, dev tools) + git hooks
 	uv sync --all-groups
@@ -13,8 +13,11 @@ clean-md:  ## clean the parsed rulebook -> data/processed/Core_rules_clean.md
 index:  ## build the ChromaDB index from the cleaned rulebook
 	uv run python scripts/index.py
 
-search:  ## try the rulebook search, e.g. make search q="What is the rule for grenades?"
-	uv run python scripts/search.py "$(q)"
+search:  ## try the rulebook search, e.g. make search q="What is the rule for grenades?" mode=vector
+	uv run python scripts/search.py "$(q)" $(if $(mode),--mode $(mode))
+
+compare-retrieval:  ## top 3 of a few test questions with vector / hybrid / full search
+	uv run python scripts/compare_retrieval.py
 
 chat:  ## start the chat interface
 	uv run streamlit run scripts/chat.py

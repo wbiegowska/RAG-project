@@ -1,11 +1,4 @@
-"""Vector search over the rulebook chunks, stored in ChromaDB.
-
-ChromaDB is saved on disk (settings.chroma_dir, not in git) so we only compute the
-embeddings once with `make index`, the chat just loads it. We compute the embeddings
-ourselves with our Embedder and give them to chroma, instead of letting chroma use its
-default model, so we know exactly which model is used for the chunks and for the questions.
-The collection uses cosine distance, chroma uses an HNSW index for the search.
-"""
+"""Vector search with ChromaDB (cosine distance), stored in settings.chroma_dir by make index."""
 
 from pathlib import Path
 
@@ -22,8 +15,8 @@ COLLECTION_METADATA = {"hnsw:space": "cosine"}
 
 
 def embedding_text(chunk: Chunk) -> str:
-    """What we actually embed: the section path + the text. A chunk that only says
-    "Roll six D6..." still gets found for "grenades" because its path is STRATAGEMS > GRENADE"""
+    """Section path + text, so "Roll six D6..." is still found for "grenades" (its path is
+    STRATAGEMS > GRENADE). BM25 and the reranker use the same text."""
     return f"{chunk.section_path}\n\n{chunk.text}"
 
 
@@ -34,6 +27,7 @@ class VectorRetriever(BaseRetriever):
             path=str(persist_dir or settings.chroma_dir),
             settings=ChromaSettings(anonymized_telemetry=False),
         )
+        # embedding_function=None: chroma gets our own embeddings, not its default model
         self.collection = self._client.get_or_create_collection(
             COLLECTION_NAME, metadata=COLLECTION_METADATA, embedding_function=None
         )
@@ -78,3 +72,13 @@ class VectorRetriever(BaseRetriever):
             )
             for chunk_id, text, meta, distance in rows
         ]
+
+    def all_chunks(self) -> list[Chunk]:
+        """All the chunks of the index, BM25 is built from them so both use the same chunks."""
+        result = self.collection.get(include=["documents", "metadatas"])
+        rows = zip(result["ids"], result["documents"], result["metadatas"], strict=True)
+        chunks = [
+            Chunk(id=chunk_id, text=text, section_path=meta["section_path"], page=meta["page"])
+            for chunk_id, text, meta in rows
+        ]
+        return sorted(chunks, key=lambda c: c.id)

@@ -1,4 +1,4 @@
-"""Parse the Core Rules PDF into markdown with Docling.
+"""Parses the rulebook PDF into markdown with docling (slow, a few minutes).
 
 Usage: make parse
 """
