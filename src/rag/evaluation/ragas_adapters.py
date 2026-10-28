@@ -1,6 +1,7 @@
 """Adapters so ragas uses our gemini client and our embedding model instead of OpenAI."""
 
 import asyncio
+import threading
 from typing import Any
 
 from langchain_core.outputs import Generation, LLMResult
@@ -53,12 +54,16 @@ class EmbedderRagasEmbeddings(BaseRagasEmbeddings):
         super().__init__()
         self.embedder = embedder
         self.run_config = RunConfig()
+        # python crashed (segfault) on the mac when ragas loaded and used the model from
+        # several threads at the same time, so the calls are done one at a time
+        self._lock = threading.Lock()
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        return self.embedder.embed_documents(texts)
+        with self._lock:
+            return self.embedder.embed_documents(texts)
 
     def embed_query(self, text: str) -> list[float]:
-        return self.embedder.embed_documents([text])[0]
+        return self.embed_documents([text])[0]
 
     async def aembed_documents(self, texts: list[str]) -> list[list[float]]:
         return await asyncio.to_thread(self.embed_documents, texts)

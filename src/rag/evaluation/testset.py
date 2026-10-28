@@ -1,6 +1,7 @@
 """Test set generation with ragas, from a selection of sections of the cleaned rulebook."""
 
 from collections import defaultdict
+from pathlib import Path
 
 from langchain_core.documents import Document
 from ragas.run_config import RunConfig
@@ -12,7 +13,8 @@ from ragas.testset.synthesizers import (
     MultiHopSpecificQuerySynthesizer,
     SingleHopSpecificQuerySynthesizer,
 )
-from ragas.testset.transforms import apply_transforms, default_transforms_for_prechunked
+from ragas.testset.transforms import Parallel, apply_transforms, default_transforms_for_prechunked
+from ragas.testset.transforms.base import Extractor, NodeFilter
 
 from rag.impl.chunker.markdown_chunker import split_into_sections
 from rag.settings import settings
@@ -43,8 +45,8 @@ RUN_CONFIG = RunConfig(max_workers=4, timeout=300, max_retries=3, max_wait=60)
 
 
 def select_sections(markdown: str, max_chars: int | None = None) -> list[Document]:
-    """A few sections of every chapter, the big chapters get a few more. Generating from the
-    whole book would take too many gemini calls for the free tier."""
+    """One or two sections of every chapter (a bit more for the big ones). Using the whole
+    book would take too many gemini calls for the free tier."""
     max_chars = max_chars or settings.chunk_size
     by_chapter = defaultdict(list)
     for section in split_into_sections(markdown):
@@ -53,7 +55,7 @@ def select_sections(markdown: str, max_chars: int | None = None) -> list[Documen
 
     documents = []
     for sections in by_chapter.values():
-        count = 2 + len(sections) // 10
+        count = 1 + len(sections) // 8
         step = max(1, len(sections) // count)  # spread over the chapter, not just the start
         for section in sections[::step][:count]:
             documents.append(
@@ -66,19 +68,50 @@ def select_sections(markdown: str, max_chars: int | None = None) -> list[Documen
     return documents
 
 
-def build_knowledge_graph(documents: list[Document], llm, embeddings) -> KnowledgeGraph:
-    """Summaries, themes and entities for each section (the part with most gemini calls),
-    then links between similar sections, which are used for the multi-hop questions."""
-    nodes = [
-        Node(
-            type=NodeType.CHUNK,
-            properties={"page_content": doc.page_content, "document_metadata": doc.metadata},
+def build_knowledge_graph(
+    documents: list[Document], llm, embeddings, partial_path: Path
+) -> KnowledgeGraph:
+    """Summary, themes and entities for each section (the part with most gemini calls),
+    then the links between similar sections used for the multi-hop questions.
+
+    The graph is saved in partial_path after every step and a step only processes the
+    sections that dont have its result yet. So when it stops in the middle (quota, crash)
+    the next run continues from there instead of starting again."""
+    if partial_path.exists():
+        graph = KnowledgeGraph.load(partial_path)
+        print(f"Continuing from {partial_path}")
+    else:
+        graph = KnowledgeGraph(
+            nodes=[
+                Node(
+                    type=NodeType.CHUNK,
+                    properties={
+                        "page_content": doc.page_content,
+                        "document_metadata": doc.metadata,
+                    },
+                )
+                for doc in documents
+            ]
         )
-        for doc in documents
-    ]
-    graph = KnowledgeGraph(nodes=nodes)
-    transforms = default_transforms_for_prechunked(llm=llm, embedding_model=embeddings)
-    apply_transforms(graph, transforms, run_config=RUN_CONFIG)
+
+    builders = []
+    for transform in _flatten(default_transforms_for_prechunked(llm, embeddings)):
+        if isinstance(transform, NodeFilter):
+            # it compares a chunk with the summary of its document, our sections dont have
+            # a parent document so it would skip every node anyway
+            continue
+        if isinstance(transform, Extractor):
+            _only_missing(transform)
+            try:
+                apply_transforms(graph, transform, run_config=RUN_CONFIG)
+            finally:
+                # saved even when some calls failed, ragas raises at the end of the step
+                graph.save(partial_path)
+        else:
+            builders.append(transform)  # links between sections, run once everything is there
+
+    for builder in builders:
+        apply_transforms(graph, builder, run_config=RUN_CONFIG)
     return graph
 
 
@@ -120,6 +153,23 @@ def _can_build(synthesizer, graph: KnowledgeGraph) -> bool:
         return bool(synthesizer.get_node_clusters(graph))
     except Exception:  # ragas raises when there is nothing to cluster
         return False
+
+
+def _flatten(transforms) -> list:
+    flat = []
+    for transform in transforms:
+        if isinstance(transform, Parallel):
+            flat.extend(_flatten(transform.transformations))
+        else:
+            flat.append(transform)
+    return flat
+
+
+def _only_missing(extractor: Extractor) -> None:
+    """Makes the extractor skip the sections that already have its result."""
+    keep = extractor.filter_nodes
+    name = extractor.property_name
+    extractor.filter_nodes = lambda node: keep(node) and node.get_property(name) is None
 
 
 def _chapter(path: str) -> str:

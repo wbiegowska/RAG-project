@@ -7,11 +7,13 @@ import pytest
 pytest.importorskip("ragas")  # the eval group is not installed for everyone
 
 from langchain_core.prompt_values import StringPromptValue  # noqa: E402
+from ragas.testset.graph import Node, NodeType  # noqa: E402
+from ragas.testset.transforms.extractors import SummaryExtractor  # noqa: E402
 
 from rag.base.embedder import Embedder  # noqa: E402
 from rag.base.llm import LLMClient  # noqa: E402
 from rag.evaluation.ragas_adapters import EmbedderRagasEmbeddings, GeminiRagasLLM  # noqa: E402
-from rag.evaluation.testset import select_sections  # noqa: E402
+from rag.evaluation.testset import _only_missing, select_sections  # noqa: E402
 
 SENTENCE = "This rule explains what happens when a unit does something on the battlefield. "
 SAMPLE = f"""<!-- page: 10 -->
@@ -68,14 +70,10 @@ class FakeEmbedder(Embedder):
 def test_select_sections_keeps_the_path_and_the_page():
     documents = select_sections(SAMPLE, max_chars=1200)
     paths = [d.metadata["section_path"] for d in documents]
-    # STRATAGEMS is too short, the others are kept
-    assert paths == [
-        "THE BATTLE ROUND > SHOOTING PHASE",
-        "THE BATTLE ROUND > SHOOTING PHASE > MAKING ATTACKS",
-        "STRATAGEMS > GRENADE",
-    ]
-    assert documents[2].metadata["page"] == 41
-    assert documents[2].page_content.startswith("STRATAGEMS > GRENADE\n\nThis rule")
+    # one section per small chapter, and STRATAGEMS alone is too short
+    assert paths == ["THE BATTLE ROUND > SHOOTING PHASE", "STRATAGEMS > GRENADE"]
+    assert documents[1].metadata["page"] == 41
+    assert documents[1].page_content.startswith("STRATAGEMS > GRENADE\n\nThis rule")
 
 
 def test_select_sections_skips_sections_longer_than_a_chunk():
@@ -99,3 +97,13 @@ def test_ragas_embeddings_dont_use_the_query_instruction():
     assert embeddings.embed_query("abc") == [3.0, 1.0]
     assert asyncio.run(embeddings.aembed_documents(["ab"])) == [[2.0, 1.0]]
     assert fake.calls == ["documents", "documents"]
+
+
+def test_extractors_skip_sections_that_are_already_done():
+    # this is what lets make testset continue after a crash without redoing everything
+    done = Node(type=NodeType.CHUNK, properties={"page_content": "a", "summary": "done"})
+    todo = Node(type=NodeType.CHUNK, properties={"page_content": "b"})
+    extractor = SummaryExtractor(llm=GeminiRagasLLM(FakeLLM()))
+    _only_missing(extractor)
+    assert not extractor.filter_nodes(done)
+    assert extractor.filter_nodes(todo)

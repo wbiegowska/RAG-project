@@ -1,0 +1,162 @@
+[
+  {
+    "user_input": "What are the first steps to play a game of Warhammer 40,000?",
+    "reference_contexts": [
+      "CORE CONCEPTS > MISSIONS\n\nTo play a game of Warhammer 40,000, you must first select a mission. The mission will tell you how to muster your armies, create your battlefield and deploy your forces on the tabletop. It will also tell you any special rules that apply to the battle, and (most importantly!) what you need to do to win. You can find out more about missions on pages 57-58."
+    ],
+    "reference": "To play a game of Warhammer 40,000, you must first select a mission. The mission tells you how to muster your armies, create your battlefield, deploy your forces on the tabletop, apply any special rules for the battle, and what you need to do to win.",
+    "persona_name": "Experienced player",
+    "query_style": "WEB_SEARCH_LIKE",
+    "query_length": "MEDIUM",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How do you measure distance in Warhammer 40,000?",
+    "reference_contexts": [
+      "CORE CONCEPTS > MEASURING DISTANCES\n\nDistances in Warhammer 40,000 are measured in inches (\"). You can measure distances whenever you wish.\n\nWhen measuring the distance between models, measure between the closest points of the bases of the models you're measuring to and from. If a model does not have a base, measure to the closest point of any part of that model instead.\n\nIf a rule says it applies 'within' a certain distance, it applies at any distance that is not more than the specified distance. For example, within 1\" means any distance that is not more than 1\" away."
+    ],
+    "reference": "Distances in Warhammer 40,000 are measured in inches (\"). When measuring between models, you measure between the closest points of their bases. If a model does not have a base, you measure to the closest point of any part of that model instead.",
+    "persona_name": "New player",
+    "query_style": "POOR_GRAMMAR",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How are turns structured in Wharhamer 40,000 battles?",
+    "reference_contexts": [
+      "THE BATTLE ROUND\n\nMinute by bloody minute the battle grinds on, from the opening volleys of shots through furious offensives and desperate counter-attacks, into the last dying moments when victory hangs by a thread.\n\nWarhammer 40,000 is played in a series of battle rounds. In each battle round, both players have a turn. The same player always takes the first turn in each battle round - the mission you are playing will tell you which player this is. Each turn consists of a series of phases, which must be resolved in the following order."
+    ],
+    "reference": "Warhammer 40,000 is played in a series of battle rounds, with both players having a turn in each battle round. The same player always takes the first turn in each battle round, as specified by the mission being played, and each turn consists of a series of phases that must be resolved in a specific order.",
+    "persona_name": "Experienced player",
+    "query_style": "MISSPELLED",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What do I get at the start of my Comand phase?",
+    "reference_contexts": [
+      "THE BATTLE ROUND > COMMAND PHASE > 1. COMMAND\n\nAt the start of your Command phase, before doing anything else, both players gain 1CP. Command points are a strategic resource that you can spend during the battle to use Stratagems. You can find out more about Stratagems on pages 41-42.\n\nThen, if you have any other rules that need to be resolved in the Command phase, you do so now before progressing to the Battle-shock step.\n\n- Both players gain 1CP.\n- Resolve any other rules that occur in the Command phase."
+    ],
+    "reference": "At the start of your Command phase, before doing anything else, both players gain 1CP (Command point).",
+    "persona_name": "New player",
+    "query_style": "MISSPELLED",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "Hey what happen during the Movement phase and how far models can walk?",
+    "reference_contexts": [
+      "THE BATTLE ROUND > MOVEMENT PHASE > 1. MOVE UNITS > NORMAL MOVES\n\nWhen a unit makes a Normal move, each model in that unit can move a distance in inches less than or equal to its Move (M) characteristic, but no model can be moved within Engagement Range of any enemy models (pg 7).\n\n- Normal Move: Models move up to M\".\n- Cannot move within Engagement Range of any enemy models.\n\nYour Movement phase is split into two steps. First you can move your units, then you can set up reinforcements."
+    ],
+    "reference": "Your Movement phase is split into two steps. First you can move your units, then you can set up reinforcements. When a unit makes a Normal move, each model in that unit can move a distance in inches less than or equal to its Move characteristic, but no model can be moved within Engagement Range of any enemy models.",
+    "persona_name": "New player",
+    "query_style": "POOR_GRAMMAR",
+    "query_length": "MEDIUM",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "Can you explain what a Transport does in the game?",
+    "reference_contexts": [
+      "THE BATTLE ROUND > MOVEMENT PHASE > TRANSPORTS\n\nSome units can carry others across the battlefield, providing their passengers with greater speed and protection as they are ferried to the front lines or towards vital objectives.\n\nSome models have the Transport keyword. The following rules describe how units can embark within and disembark from such models, and how they are used to move these passengers across the battlefield."
+    ],
+    "reference": "A Transport is a model that has the Transport keyword and can carry other units across the battlefield. It provides its passengers with greater speed and protection as they are ferried to the front lines or towards vital objectives.",
+    "persona_name": "New player",
+    "query_style": "MISSPELLED",
+    "query_length": "MEDIUM",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "When does the Charge phase occur during the battle round?",
+    "reference_contexts": [
+      "THE BATTLE ROUND > SHOOTING PHASE\n\nGuns thunder and shrapnel flies through the air. Bursts of muzzle flare and beams of las-fire illuminate the fog of war, and spent ammunition cartridges litter the battlefield.\n\nIn your Shooting phase, if you have one or more eligible units from your army on the battlefield, you can select those units, one at a time, and shoot with them. Each unit can only be selected to shoot once per phase. Once all of the units you selected have shot, progress to your Charge phase.\n\nA unit is eligible to shoot unless any of the following apply:\n\n- That unit Advanced this turn.\n- That unit Fell Back this turn."
+    ],
+    "reference": "The Charge phase progresses once all of the units you selected have finished shooting in your Shooting phase.",
+    "persona_name": "Experienced player",
+    "query_style": "PERFECT_GRAMMAR",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How many Feel No Pain abilities I can use when model lose wound?",
+    "reference_contexts": [
+      "THE BATTLE ROUND > SHOOTING PHASE > MAKING ATTACKS > FEEL NO PAIN\n\nSome warriors refuse to be laid low, even by what should be fatal wounds.\n\nSome models have 'Feel No Pain x+' listed in their abilities. Each time a model with this ability suffers damage and so would lose a wound (including wounds lost due to mortal wounds), roll one D6: if the result is greater than or equal to the number denoted by 'x', that wound is ignored and is not lost. If a model has more than one Feel No Pain ability, you can only use one of those abilities each time that model suffers damage and so would lose a wound.\n\n- Feel No Pain x+: Each time this model would lose a wound, roll one D6: if the result equals or exceeds 'x', that wound is not lost."
+    ],
+    "reference": "If a model has more than one Feel No Pain ability, you can only use one of those abilities each time that model suffers damage and so would lose a wound.",
+    "persona_name": "Experienced player",
+    "query_style": "POOR_GRAMMAR",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "Can a Grenades unit use the Grenade stratagem if it is within Engagement Range of any enemy units?",
+    "reference_contexts": [
+      "<1-hop>\n\nTHE BATTLE ROUND > FIGHT PHASE > FIGHT > 1. PILE IN\n\nWhen a unit Piles In, you can move each model in that unit that is not already in base-to-base contact with an enemy model up to 3\" - this is a Pile-in move. For a Pile In to be possible, a unit must be able to end these moves within Engagement Range of one or more enemy units and in Unit Coherency. If these conditions cannot be met, no models in the unit can make Pile-in moves this phase and you progress to making melee attacks with that unit. Otherwise, the unit can make Pile-in moves.\n\nEach time a model makes a Pile-in move, it must end that move closer to the closest enemy model. If it can also end that move in base-to-base contact with one or more enemy models while still satisfying all of the conditions above, it must do so. The controlling player chooses the order in which to move their models.\n\n- Pile-in Move: Up to 3\".\n- Every model that moves must end closer to the closest enemy model, and in base-to-base contact with an enemy model if possible. The unit must end in Unit Coherency and within Engagement Range of at least one enemy unit (or no models can Pile In).",
+      "<2-hop>\n\nSTRATAGEMS > GRENADE\n\nCORE - WARGEAR STRATAGEM\n\nPriming their hand-held projectiles, these warriors draw back and hurl death into the enemy's midst.\n\nWHEN: Your Shooting phase.\n\nTARGET: One Grenades unit from your army that is not within Engagement Range of any enemy units and has not been selected to shoot this phase.\n\nEFFECT: Select one enemy unit that is not within Engagement Range of any units from your army and is within 8\" of and visible to your Grenades unit. Roll six D6: for each 4+, that enemy unit suffers 1 mortal wound."
+    ],
+    "reference": "No, a Grenades unit cannot use the Grenade stratagem if it is within Engagement Range of any enemy units, as the target requirement specifies that the unit must not be within Engagement Range of any enemy units during your Shooting phase.",
+    "synthesizer_name": "multi_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "during the MOVEMENT PHASE when units embark or disembark using the TRANSPORTS rules, how does that fit with making NORMAL MOVES where models move up to M inches and cant go into Engagement Range?",
+    "reference_contexts": [
+      "<1-hop>\n\nTHE BATTLE ROUND > MOVEMENT PHASE > TRANSPORTS\n\nSome units can carry others across the battlefield, providing their passengers with greater speed and protection as they are ferried to the front lines or towards vital objectives.\n\nSome models have the Transport keyword. The following rules describe how units can embark within and disembark from such models, and how they are used to move these passengers across the battlefield.",
+      "<2-hop>\n\nTHE BATTLE ROUND > MOVEMENT PHASE > 1. MOVE UNITS > NORMAL MOVES\n\nWhen a unit makes a Normal move, each model in that unit can move a distance in inches less than or equal to its Move (M) characteristic, but no model can be moved within Engagement Range of any enemy models (pg 7).\n\n- Normal Move: Models move up to M\".\n- Cannot move within Engagement Range of any enemy models.\n\nYour Movement phase is split into two steps. First you can move your units, then you can set up reinforcements."
+    ],
+    "reference": "During the Movement phase, some models have the Transport keyword which allows other units to embark within and disembark from them to carry them across the battlefield. Additionally, your Movement phase is split into two steps where you first move your units and then set up reinforcements. When a unit makes a Normal move during this phase, each model can move a distance in inches less than or equal to its Move characteristic, but no model can be moved within Engagement Range of any enemy models.",
+    "synthesizer_name": "multi_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "where I can find Codexes for additional Stratagems when building your army points values for units need to refer to these?",
+    "reference_contexts": [
+      "<1-hop>\n\nSTRATAGEMS\n\nCommand points can be spent during the battle to use Stratagems. All players can use the Core Stratagems presented here. Additional Stratagems can be found in Codexes and other publications.\n\nWhen you use a Stratagem, reduce your CP total by the amount listed on that Stratagem. If you do not have enough CP for a specific Stratagem, you cannot use it. You can use the same Stratagem multiple times during a battle, but you cannot use the same Stratagem more than once in the same phase.\n\n- To use a Stratagem you must pay the CP specified.\n- The same Stratagem cannot be used more than once in the same phase.",
+      "<2-hop>\n\nMUSTER YOUR ARMY > SELECT ARMY FACTION\n\nWith your opponent, select one of the battle sizes below. This will determine the total number of points each player can spend to build their army and, as a result, how long the battle will last. Points are a measure of a unit's power on the battlefield; the higher a unit's points value, the more powerful that unit is. The points values for units are presented in other publications, such as Codexes and the Munitorum Field Manual. You will need to refer to these when building your army."
+    ],
+    "reference": "Additional Stratagems, as well as the points values for units that you need to refer to when building your army, can be found in Codexes and other publications such as the Munitorum Field Manual.",
+    "synthesizer_name": "multi_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "Can player use same STRATAGEMS like GRENADE more once in shooting phase?",
+    "reference_contexts": [
+      "<1-hop>\n\nSTRATAGEMS\n\nCommand points can be spent during the battle to use Stratagems. All players can use the Core Stratagems presented here. Additional Stratagems can be found in Codexes and other publications.\n\nWhen you use a Stratagem, reduce your CP total by the amount listed on that Stratagem. If you do not have enough CP for a specific Stratagem, you cannot use it. You can use the same Stratagem multiple times during a battle, but you cannot use the same Stratagem more than once in the same phase.\n\n- To use a Stratagem you must pay the CP specified.\n- The same Stratagem cannot be used more than once in the same phase.",
+      "<2-hop>\n\nSTRATAGEMS > GRENADE\n\nCORE - WARGEAR STRATAGEM\n\nPriming their hand-held projectiles, these warriors draw back and hurl death into the enemy's midst.\n\nWHEN: Your Shooting phase.\n\nTARGET: One Grenades unit from your army that is not within Engagement Range of any enemy units and has not been selected to shoot this phase.\n\nEFFECT: Select one enemy unit that is not within Engagement Range of any units from your army and is within 8\" of and visible to your Grenades unit. Roll six D6: for each 4+, that enemy unit suffers 1 mortal wound."
+    ],
+    "reference": "No, you cannot use the same Stratagem more than once in the same phase, even though the GRENADE Stratagem is used during your Shooting phase.",
+    "synthesizer_name": "multi_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "when i do model movement during pile in, how does measuring distances work for the bases so i know if im close enough?",
+    "reference_contexts": [
+      "<1-hop>\n\nCORE CONCEPTS > MEASURING DISTANCES\n\nDistances in Warhammer 40,000 are measured in inches (\"). You can measure distances whenever you wish.\n\nWhen measuring the distance between models, measure between the closest points of the bases of the models you're measuring to and from. If a model does not have a base, measure to the closest point of any part of that model instead.\n\nIf a rule says it applies 'within' a certain distance, it applies at any distance that is not more than the specified distance. For example, within 1\" means any distance that is not more than 1\" away.",
+      "<2-hop>\n\nTHE BATTLE ROUND > FIGHT PHASE > FIGHT > 1. PILE IN\n\nWhen a unit Piles In, you can move each model in that unit that is not already in base-to-base contact with an enemy model up to 3\" - this is a Pile-in move. For a Pile In to be possible, a unit must be able to end these moves within Engagement Range of one or more enemy units and in Unit Coherency. If these conditions cannot be met, no models in the unit can make Pile-in moves this phase and you progress to making melee attacks with that unit. Otherwise, the unit can make Pile-in moves.\n\nEach time a model makes a Pile-in move, it must end that move closer to the closest enemy model. If it can also end that move in base-to-base contact with one or more enemy models while still satisfying all of the conditions above, it must do so. The controlling player chooses the order in which to move their models.\n\n- Pile-in Move: Up to 3\".\n- Every model that moves must end closer to the closest enemy model, and in base-to-base contact with an enemy model if possible. The unit must end in Unit Coherency and within Engagement Range of at least one enemy unit (or no models can Pile In)."
+    ],
+    "reference": "When measuring distances between models, you must measure between the closest points of the bases of the models you are measuring to and from. During a Pile-in move, each model can move up to 3 inches, but it must end that move closer to the closest enemy model, ending in base-to-base contact if possible, while remaining within Engagement Range and Unit Coherency.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "How do missions in Warhammer 40,000 affect the game, and what happens at the start of the Command phase regarding Command points?",
+    "reference_contexts": [
+      "<1-hop>\n\nTHE BATTLE ROUND > COMMAND PHASE > 1. COMMAND\n\nAt the start of your Command phase, before doing anything else, both players gain 1CP. Command points are a strategic resource that you can spend during the battle to use Stratagems. You can find out more about Stratagems on pages 41-42.\n\nThen, if you have any other rules that need to be resolved in the Command phase, you do so now before progressing to the Battle-shock step.\n\n- Both players gain 1CP.\n- Resolve any other rules that occur in the Command phase.",
+      "<2-hop>\n\nCORE CONCEPTS > MISSIONS\n\nTo play a game of Warhammer 40,000, you must first select a mission. The mission will tell you how to muster your armies, create your battlefield and deploy your forces on the tabletop. It will also tell you any special rules that apply to the battle, and (most importantly!) what you need to do to win. You can find out more about missions on pages 57-58."
+    ],
+    "reference": "In Warhammer 40,000, missions tell you how to muster your armies, create your battlefield, deploy forces, apply special rules, and determine what you need to do to win. At the start of your Command phase, before doing anything else, both players gain 1CP, which are Command points used to spend on Stratagems during the battle.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "how do I use measuring distances during movement phase",
+    "reference_contexts": [
+      "<1-hop>\n\nCORE CONCEPTS > MEASURING DISTANCES\n\nDistances in Warhammer 40,000 are measured in inches (\"). You can measure distances whenever you wish.\n\nWhen measuring the distance between models, measure between the closest points of the bases of the models you're measuring to and from. If a model does not have a base, measure to the closest point of any part of that model instead.\n\nIf a rule says it applies 'within' a certain distance, it applies at any distance that is not more than the specified distance. For example, within 1\" means any distance that is not more than 1\" away.",
+      "<2-hop>\n\nTHE BATTLE ROUND > MOVEMENT PHASE > 1. MOVE UNITS > NORMAL MOVES\n\nWhen a unit makes a Normal move, each model in that unit can move a distance in inches less than or equal to its Move (M) characteristic, but no model can be moved within Engagement Range of any enemy models (pg 7).\n\n- Normal Move: Models move up to M\".\n- Cannot move within Engagement Range of any enemy models.\n\nYour Movement phase is split into two steps. First you can move your units, then you can set up reinforcements."
+    ],
+    "reference": "During the Movement phase, when your units make a Normal move, each model can move a distance in inches less than or equal to its Move characteristic. When you need to measure this distance between models, you measure in inches between the closest points of the bases of the models, or to the closest point of any part of the model if it does not have a base.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "Hey I am new to tabletop gaming and confused about rules, can you tell me how many command points you get at the start of the battle round during the Command phase and what happens if you try to spend them on the same Stratagem multiple times in that phase?",
+    "reference_contexts": [
+      "<1-hop>\n\nTHE BATTLE ROUND > COMMAND PHASE > 1. COMMAND\n\nAt the start of your Command phase, before doing anything else, both players gain 1CP. Command points are a strategic resource that you can spend during the battle to use Stratagems. You can find out more about Stratagems on pages 41-42.\n\nThen, if you have any other rules that need to be resolved in the Command phase, you do so now before progressing to the Battle-shock step.\n\n- Both players gain 1CP.\n- Resolve any other rules that occur in the Command phase.",
+      "<2-hop>\n\nSTRATAGEMS\n\nCommand points can be spent during the battle to use Stratagems. All players can use the Core Stratagems presented here. Additional Stratagems can be found in Codexes and other publications.\n\nWhen you use a Stratagem, reduce your CP total by the amount listed on that Stratagem. If you do not have enough CP for a specific Stratagem, you cannot use it. You can use the same Stratagem multiple times during a battle, but you cannot use the same Stratagem more than once in the same phase.\n\n- To use a Stratagem you must pay the CP specified.\n- The same Stratagem cannot be used more than once in the same phase."
+    ],
+    "reference": "At the start of your Command phase in the battle round, both players gain 1CP. When you want to use Stratagems with these Command points, you reduce your CP total by the amount listed on the Stratagem, but you cannot use the same Stratagem more than once in the same phase.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  }
+]
