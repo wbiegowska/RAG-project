@@ -1,6 +1,6 @@
 """Builds the vector index: cleaned rulebook -> chunks -> embeddings -> ChromaDB.
 
-Usage: make index  (run `make clean-md` before if the cleaned rulebook changed)
+Usage: make index
 """
 
 from rag.impl.chunker.markdown_chunker import chunk_markdown

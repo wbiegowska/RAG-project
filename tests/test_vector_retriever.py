@@ -70,3 +70,10 @@ def test_empty_index_gives_a_clear_error(tmp_path):
 
 def test_section_path_is_embedded_with_the_text():
     assert embedding_text(CHUNKS[0]).startswith("GRENADE\n\n")
+
+
+def test_all_chunks_gives_back_what_was_indexed(tmp_path):
+    retriever = VectorRetriever(FakeEmbedder(), persist_dir=tmp_path)
+    retriever.index(CHUNKS)
+    stored = [(c.id, c.text, c.section_path, c.page) for c in retriever.all_chunks()]
+    assert stored == [(c.id, c.text, c.section_path, c.page) for c in CHUNKS]

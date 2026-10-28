@@ -1,13 +1,5 @@
-"""Gemini client (Google AI Studio), the only LLM backend of the project.
-
-Everything that talks to the LLM goes through here: text-to-SQL, the router, the final
-answer and later the RAGAS judge. This way the API key, the model name and the rate
-limiting are all handled in one place.
-
-Use `get_llm()` instead of creating a GeminiClient yourself, it gives back the same client
-every time so all the calls share one throttle. If every part of the pipeline had its own
-client we would go over the free tier limit without noticing.
-"""
+"""Gemini client (Google AI Studio). Every LLM call should go through get_llm(), that way
+all calls share one throttle and we stay under the free tier limits."""
 
 import logging
 import threading
@@ -24,13 +16,11 @@ from rag.settings import settings
 
 logger = logging.getLogger(__name__)
 
-# Retries are done by the google-genai SDK itself, it retries on 429 (too many requests)
-# and 5xx errors with exponential backoff (waits of about 5s then 10s). If the model still
-# fails after that we switch to the next model in settings.llm_fallback_models.
+# the SDK retries 429 and 5xx errors by itself (waits ~5s then ~10s), after that we switch
+# to the next model in settings.llm_fallback_models
 RETRY_OPTIONS = types.HttpRetryOptions(attempts=3, initial_delay=5.0, max_delay=60.0)
 
-# errors where trying another model makes sense: model overloaded (503) or out of quota (429).
-# We saw the 503 "high demand" one quite often while testing with the free tier
+# overloaded (503) or out of quota (429), the 503 "high demand" happens a lot on free tier
 FALLBACK_CODES = {429, 503}
 
 
@@ -39,12 +29,8 @@ class MissingAPIKeyError(RuntimeError):
 
 
 class Throttle:
-    """Waits between calls so we never send more than `requests_per_minute` per minute.
-
-    Before each call it checks how long ago the last one was and sleeps for the rest of
-    the interval if needed. There is a lock so it also works when several threads call
-    Gemini at the same time (RAGAS does that), they just wait for their turn.
-    """
+    """Waits between calls to stay under requests_per_minute. The lock makes it work with
+    several threads too (RAGAS calls gemini in parallel)."""
 
     def __init__(
         self,
@@ -53,7 +39,7 @@ class Throttle:
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         self.min_interval = 60.0 / requests_per_minute
-        self._clock = clock  # clock and sleep can be replaced in the tests
+        self._clock = clock  # replaced by fakes in the tests
         self._sleep = sleep
         self._lock = threading.Lock()
         self._last_call: float | None = None
@@ -70,7 +56,7 @@ class Throttle:
 
 
 class GeminiClient(LLMClient):
-    """LLMClient implementation for Gemini, with throttling, retries and fallback models."""
+    """LLMClient for gemini, with throttling, retries and fallback models."""
 
     def __init__(
         self,
@@ -84,9 +70,9 @@ class GeminiClient(LLMClient):
             fallback_models = settings.llm_fallback_models
         self.fallback_models = [m for m in fallback_models if m != self.model]
         self.throttle = throttle or Throttle(settings.llm_requests_per_minute)
-        # `client` is only passed in the tests (a fake one), normally we create the real one
+        # the tests pass a fake client
         self._client = client or self._create_client()
-        # token counts of the last call, used later by the monitoring
+        # token counts of the last call, for the monitoring
         self.last_usage: Any = None
 
     @staticmethod
@@ -129,13 +115,13 @@ class GeminiClient(LLMClient):
                 for chunk in chunks:
                     if chunk.usage_metadata:
                         self.last_usage = chunk.usage_metadata
-                    # some chunks have no text (e.g the last one with only the token counts)
+                    # the last chunk can have only the token counts
                     if chunk.text:
                         started = True
                         yield chunk.text
                 return
             except errors.APIError as error:
-                # once part of the answer is shown we cant switch model anymore
+                # cant switch model once part of the answer is shown
                 if not started and self._should_fall_back(error, model, models[i + 1 :]):
                     continue
                 raise
@@ -155,15 +141,14 @@ class GeminiClient(LLMClient):
 
     @staticmethod
     def _config(system: str | None) -> types.GenerateContentConfig | None:
-        # we dont set the temperature on purpose, Google recommends keeping the default
-        # for the Gemini 3 models
+        # temperature left at default on purpose, google recommends it for gemini 3 models
         if system is None:
             return None
         return types.GenerateContentConfig(system_instruction=system)
 
 
 def get_llm(model: str | None = None) -> GeminiClient:
-    """Returns the shared client for a model (one per model, since limits are per model)"""
+    """Shared client for a model (one per model since the limits are per model)"""
     return _shared_client(model or settings.llm_model)
 
 
