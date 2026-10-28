@@ -26,6 +26,10 @@ class Section:
     start_page: int
     lines: list[str] = field(default_factory=list)
 
+    @property
+    def text(self) -> str:
+        return _without_markers("\n".join(self.lines))
+
 
 def chunk_markdown(
     markdown: str,
@@ -71,7 +75,7 @@ def split_into_sections(markdown: str) -> list[Section]:
             continue
         current.lines.append(line)
     # a heading directly followed by another one has no text
-    return [s for s in sections if _without_markers("\n".join(s.lines))]
+    return [s for s in sections if s.text]
 
 
 def split_section(

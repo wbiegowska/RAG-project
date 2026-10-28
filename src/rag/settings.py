@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     use_reranker: bool = False
     reranker_model: str = "cross-encoder/ms-marco-MiniLM-L6-v2"
 
+    # Evaluation
+    eval_dir: Path = PROJECT_ROOT / "eval"
+    testset_size: int = 15
+
     # Monitoring
     log_dir: Path = PROJECT_ROOT / "logs"
 
