@@ -133,15 +133,35 @@ points.
 
 ## Text-to-SQL
 
-(Ala)
+We implemented a robust Text-to-SQL pipeline targeting `wahadb.sqlite` to query unit statistics, weapon profiles, stratagems, and abilities.
+
+* **Schema Ingestion & Few-Shot Prompting**: The SQL generation prompt includes the database schema and explicit rules (e.g., distinguishing between unit keywords like Space Marines and actual unit names).
+* **Execution Safety**:
+  * The database connection is strictly opened in read-only mode (`?mode=ro`).
+  * Only single-statement `SELECT` queries are permitted; dangerous operations (`DROP`, `DELETE`, `UPDATE`, multi-statements) are rejected prior to execution.
+  * Queries are forced to include a `LIMIT` clause to prevent resource exhaustion.
+* **Self-Correction & Fallbacks**: If SQL execution fails due to a syntax error or missing table/column, the exception is caught, and the error context is sent back to Gemini for a single retry attempt before returning a graceful failure in `SQLResult`.
 
 ## Router and conversation memory
 
-(Ala)
+To handle multi-turn interactions and route queries efficiently, we built an agentic orchestration layer:
+
+* **Query Rewriting**: Multi-turn follow-up questions (e.g., *"And its save?"*) are rewritten using `rewrite.jinja` into clear, self-contained standalone questions using the prior conversation context before reaching the retriever or router.
+* **Intent Routing**: A structured router classifies standalone queries into three intent routes:
+  * `rules`: Vector/hybrid retrieval over rulebook text.
+  * `units`: Text-to-SQL queries over unit statistics and database tables.
+  * `both`: Dual execution combining both sources for queries requiring both rule definitions and specific unit characteristics.
+* **Pipeline Dataclass (`PipelineResult`)**: Encapsulates state across execution steps, maintaining the original question, standalone rewritten query, active route, SQL results, retrieved chunks, and generated answer.
 
 ## Prompts
 
-(Ala)
+Prompt engineering was standardized using Jinja2 templates (`src/rag/impl/prompts/`):
+
+* **Modular Template Structure**: Distinct templates for `rewrite.jinja`, `router.jinja`, `sql.jinja`, and `answer.jinja`.
+* **Context Formatting & Grounding**:
+  * Rulebook chunks are formatted with section headers and page metadata for exact citation.
+  * SQL execution results include both the rendered SQL query string and tabular row outputs.
+  * System instructions enforce strict factual grounding: the model is instructed to answer strictly using the provided context and respond with *"I don't know based on the provided context"* when information is missing.
 
 ## Interface
 
