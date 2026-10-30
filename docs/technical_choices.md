@@ -161,9 +161,14 @@ Prompt engineering was standardized using Jinja2 templates (`src/rag/impl/prompt
   * SQL execution results include both the rendered SQL query string and tabular row outputs.
   * System instructions enforce strict factual grounding: the model is instructed to answer strictly using the provided context and respond with *"I don't know based on the provided context"* when information is missing.
 
-## Interface
+### Chat Interface & Technical Choices
 
-(Ala)
+* **Streamlit Framework**: We used Streamlit to quickly build a clean web UI in pure Python without needing a separate frontend setup.
+* **Conversation History (`st.session_state`)**: Chat history is saved across turns using `st.session_state.messages`. This passes past turns to our query rewriter, so follow-up questions (like *"how do I use it?"*) resolve correctly.
+* **Sources & Details Expander**: Each response includes a dropdown menu (`st.expander("🔍 View Sources & Details")`) to show how the system worked:
+  * **Route**: Shows if the question went to vector search (`rules`) or Text-to-SQL (`units`).
+  * **Rewritten Query**: Displays the full standalone question created by the rewriter.
+  * **Retrieved Data**: Shows the raw rulebook text chunks (with page numbers and scores) or the generated SQL query and database results.
 
 ## Evaluation
 
