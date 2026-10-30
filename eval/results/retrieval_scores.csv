@@ -1,0 +1,52 @@
+setup,question,type,hit_rate,mrr,context_recall,context_precision
+vector,"What are the first steps to play a game of Warhammer 40,000?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+vector,"How do you measure distance in Warhammer 40,000?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+vector,"How are turns structured in Wharhamer 40,000 battles?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+vector,What do I get at the start of my Comand phase?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+vector,Hey what happen during the Movement phase and how far models can walk?,single_hop_specific_query_synthesizer,1.0,0.3333333333333333,1.0,0.3333333333
+vector,Can you explain what a Transport does in the game?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+vector,When does the Charge phase occur during the battle round?,single_hop_specific_query_synthesizer,0.0,0.0,0.0,0.0
+vector,How many Feel No Pain abilities I can use when model lose wound?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+vector,Can a Grenades unit use the Grenade stratagem if it is within Engagement Range of any enemy units?,multi_hop_specific_query_synthesizer,1.0,1.0,0.5,0.9999999999
+vector,Where can I find more Stratagems and the points values of the units?,multi_hop_specific_query_synthesizer,1.0,0.5,1.0,0.499999999975
+vector,Can player use same STRATAGEMS like GRENADE more once in shooting phase?,multi_hop_specific_query_synthesizer,1.0,1.0,1.0,0.8333333332916666
+vector,"when i do model movement during pile in, how does measuring distances work for the bases so i know if im close enough?",multi_hop_abstract_query_synthesizer,1.0,1.0,1.0,0.99999999995
+vector,how do I use measuring distances during movement phase,multi_hop_abstract_query_synthesizer,1.0,1.0,1.0,0.7499999999625
+vector,"Hey I am new to tabletop gaming and confused about rules, can you tell me how many command points you get at the start of the battle round during the Command phase and what happens if you try to spend them on the same Stratagem multiple times in that phase?",multi_hop_abstract_query_synthesizer,1.0,1.0,1.0,0.699999999965
+vector,What is the rule for grenades?,manual_teacher_question,1.0,1.0,1.0,0.9999999999
+vector,How can I use a stratagem?,manual_teacher_question,1.0,1.0,1.0,0.9999999999
+vector,What are the different ways to score points?,manual_teacher_question,1.0,0.25,0.3333333333333333,0.249999999975
+hybrid,"What are the first steps to play a game of Warhammer 40,000?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+hybrid,"How do you measure distance in Warhammer 40,000?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+hybrid,"How are turns structured in Wharhamer 40,000 battles?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+hybrid,What do I get at the start of my Comand phase?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+hybrid,Hey what happen during the Movement phase and how far models can walk?,single_hop_specific_query_synthesizer,1.0,0.3333333333333333,1.0,0.3333333333
+hybrid,Can you explain what a Transport does in the game?,single_hop_specific_query_synthesizer,1.0,0.2,1.0,0.19999999998
+hybrid,When does the Charge phase occur during the battle round?,single_hop_specific_query_synthesizer,0.0,0.0,0.0,0.0
+hybrid,How many Feel No Pain abilities I can use when model lose wound?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+hybrid,Can a Grenades unit use the Grenade stratagem if it is within Engagement Range of any enemy units?,multi_hop_specific_query_synthesizer,1.0,1.0,0.5,0.9999999999
+hybrid,Where can I find more Stratagems and the points values of the units?,multi_hop_specific_query_synthesizer,1.0,1.0,1.0,0.699999999965
+hybrid,Can player use same STRATAGEMS like GRENADE more once in shooting phase?,multi_hop_specific_query_synthesizer,1.0,1.0,1.0,0.99999999995
+hybrid,"when i do model movement during pile in, how does measuring distances work for the bases so i know if im close enough?",multi_hop_abstract_query_synthesizer,1.0,1.0,1.0,0.99999999995
+hybrid,how do I use measuring distances during movement phase,multi_hop_abstract_query_synthesizer,1.0,1.0,1.0,0.699999999965
+hybrid,"Hey I am new to tabletop gaming and confused about rules, can you tell me how many command points you get at the start of the battle round during the Command phase and what happens if you try to spend them on the same Stratagem multiple times in that phase?",multi_hop_abstract_query_synthesizer,1.0,1.0,1.0,0.99999999995
+hybrid,What is the rule for grenades?,manual_teacher_question,1.0,1.0,1.0,0.9999999999
+hybrid,How can I use a stratagem?,manual_teacher_question,1.0,1.0,1.0,0.9999999999
+hybrid,What are the different ways to score points?,manual_teacher_question,1.0,1.0,0.3333333333333333,0.9999999999
+full,"What are the first steps to play a game of Warhammer 40,000?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+full,"How do you measure distance in Warhammer 40,000?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+full,"How are turns structured in Wharhamer 40,000 battles?",single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+full,What do I get at the start of my Comand phase?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+full,Hey what happen during the Movement phase and how far models can walk?,single_hop_specific_query_synthesizer,1.0,0.5,1.0,0.5833333333041666
+full,Can you explain what a Transport does in the game?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+full,When does the Charge phase occur during the battle round?,single_hop_specific_query_synthesizer,0.0,0.0,0.0,0.0
+full,How many Feel No Pain abilities I can use when model lose wound?,single_hop_specific_query_synthesizer,1.0,1.0,1.0,0.9999999999
+full,Can a Grenades unit use the Grenade stratagem if it is within Engagement Range of any enemy units?,multi_hop_specific_query_synthesizer,1.0,1.0,0.5,0.9999999999
+full,Where can I find more Stratagems and the points values of the units?,multi_hop_specific_query_synthesizer,1.0,1.0,1.0,0.99999999995
+full,Can player use same STRATAGEMS like GRENADE more once in shooting phase?,multi_hop_specific_query_synthesizer,1.0,1.0,1.0,0.99999999995
+full,"when i do model movement during pile in, how does measuring distances work for the bases so i know if im close enough?",multi_hop_abstract_query_synthesizer,1.0,1.0,1.0,0.99999999995
+full,how do I use measuring distances during movement phase,multi_hop_abstract_query_synthesizer,1.0,0.5,0.5,0.49999999995
+full,"Hey I am new to tabletop gaming and confused about rules, can you tell me how many command points you get at the start of the battle round during the Command phase and what happens if you try to spend them on the same Stratagem multiple times in that phase?",multi_hop_abstract_query_synthesizer,1.0,1.0,0.5,0.9999999999
+full,What is the rule for grenades?,manual_teacher_question,1.0,1.0,1.0,0.9999999999
+full,How can I use a stratagem?,manual_teacher_question,1.0,1.0,1.0,0.9999999999
+full,What are the different ways to score points?,manual_teacher_question,1.0,0.5,0.3333333333333333,0.49999999995
