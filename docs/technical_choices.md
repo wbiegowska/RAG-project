@@ -10,13 +10,11 @@ chat interface by Ala.
   the PDF again) and `eval` (ragas), so running the chat doesn't need them. `make install`
   installs everything.
 - **ruff** for linting and formatting, run by a pre-commit git hook so the code stays
-  consistent between the two of us.
+  consistent between the two authors.
 - **pydantic-settings**: every setting (model names, paths, retrieval parameters) is in
   `src/rag/settings.py` and can be overridden in `.env`. The API key is only in `.env`, which
   is not in git: copy `.env.example` to `.env` and paste your key.
-- **base / impl**: the abstract classes and dataclasses in `src/rag/base` (Chunk,
-  BaseRetriever, LLMClient, SQLResult, BasePipeline) were written first, so we could each work
-  on our half of the project without waiting for the other.
+* **Base / Impl Modular Architecture**: Core abstract base classes and dataclasses in `src/rag/base` (`Chunk`, `BaseRetriever`, `LLMClient`, `SQLResult`, and `BasePipeline`) were established up front to define strict interface contracts. This decoupled component implementation from system integration, allowing concurrent, parallel development across database, retrieval, and pipeline modules without blocking dependencies.
 - The PDF and the SQLite database are not in git (too big). The parsed rulebook is, since
   parsing it again takes several minutes.
 
@@ -26,7 +24,7 @@ chat interface by Ala.
   did the project).
 - Every LLM call goes through `get_llm()`, which always returns the same client. That way all
   the calls share one **throttle** (10 requests per minute by default), otherwise each part
-  of the pipeline would count on its own and we would go over the free tier limit.
+  of the pipeline would count on its own and would go over the free tier limit.
 - Retries on 429 and 5xx errors are done by the google-genai SDK. While testing we got a lot
   of `503 UNAVAILABLE` ("high demand"), so after 3 attempts the client switches to fallback
   models (`gemini-3.6-flash`, then `gemini-3.5-flash-lite`) and prints a warning. Other
