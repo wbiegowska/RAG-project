@@ -70,6 +70,3 @@ GOOGLE_API_KEY=your_actual_api_key_here
 
 - [Architecture](docs/architecture.md)
 - [Technical choices and justifications](docs/technical_choices.md)
-- [Technical choices and justifications](docs/technical_choices.md)
-- [Architecture](docs/architecture.md)
-- [Technical choices and justifications](docs/technical_choices.md)
