@@ -15,7 +15,7 @@ Follow these steps to set up and run the project locally:
 ### Step 1: Install `uv`
 Install the `uv` package manager (if you haven't already):
 ```bash
-curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 ### Step 2: Install Project Dependencies
