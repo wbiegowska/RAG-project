@@ -21,8 +21,7 @@ curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | 
 ### Step 2: Install Project Dependencies
 Clone the repository, navigate into the project directory, and sync the virtual environment:
 ```bash
-git clone <your-repository-url>
-cd RAG-project
+git clone [https://github.com/wbiegowska/RAG-project.git](https://github.com/wbiegowska/RAG-project.git)cd RAG-project
 uv sync
 ```
 *(Alternatively, if `make` is installed on your system, you can run `make install`)*
