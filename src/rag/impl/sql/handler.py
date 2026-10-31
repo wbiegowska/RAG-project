@@ -8,11 +8,13 @@ from rag.impl.llm.gemini import get_llm
 DATA_DICTIONARY = """
 Database: wahadb.sqlite
 Tables:
-- units (id, name, faction, toughness, save, wounds, leadership, oc)
-- weapons (id, unit_id, name, range, attacks, ballistic_skill, strength, armor_penetration, damage)
-- stratagems (id, name, faction, turn, type, description)
-- keywords (id, unit_id, keyword)
-Note: "Space Marine" is a faction/army, not a specific unit name. Use LIKE for partial matches.
+- datasheets (Id, name, factionId, role, loadout) -> Main unit registry. Unit names are in 'name'.
+- datasheets_models_cost (DatasheetId, line, description, cost) -> Points costs for units (e.g., cost like '80' or '120 for 5 models'). Join with datasheets on datasheets.Id = datasheets_models_cost.DatasheetId.
+- datasheets_models (DatasheetId, line, name, m, t, sv, w, ld, oc) -> Unit stats (Movement, Toughness, Save, Wounds, Leadership, OC).
+- datasheets_wargear (DatasheetId, name, range, type, a, bsWs, s, ap, d) -> Unit weapons and profiles.
+- stratagems (Id, name, cpCost, turn, phase, description) -> Army stratagems.
+- keywords (DatasheetId, keyword) -> Unit keywords.
+Note: Always use JOINs between `datasheets` and tables like `datasheets_models_cost` using `Id = DatasheetId`. Use LIKE for partial unit name matches.
 """
 
 FORBIDDEN_KEYWORDS = [
