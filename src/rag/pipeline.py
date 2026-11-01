@@ -1,23 +1,13 @@
-from dataclasses import dataclass, field
-from typing import Any
-
+from rag.base.chunk import Chunk
+from rag.base.pipeline import BasePipeline, Message, PipelineResult
+from rag.base.retriever import BaseRetriever
 from rag.base.sql import SQLResult
 from rag.impl.agent.router import route_query
-from rag.impl.embedder.sbert import SbertEmbedder
 from rag.impl.llm.gemini import get_llm
 from rag.impl.prompt_loader import render_prompt
-from rag.impl.retriever.vector import VectorRetriever
+from rag.impl.retriever.factory import get_rulebook_retriever
 from rag.impl.sql.handler import run_text_to_sql
-
-
-@dataclass
-class PipelineResult:
-    question: str
-    standalone_question: str
-    answer: str
-    route: str
-    sql_result: SQLResult | None = None
-    retrieved_chunks: list[Any] = field(default_factory=list)
+from rag.settings import settings
 
 
 def rewrite_query(question: str, history: list[dict[str, str]]) -> str:
@@ -34,7 +24,7 @@ def rewrite_query(question: str, history: list[dict[str, str]]) -> str:
 def run_pipeline(
     question: str,
     history: list[dict[str, str]] | None = None,
-    retriever: VectorRetriever | None = None,
+    retriever: BaseRetriever | None = None,
 ) -> PipelineResult:
     """Orchestrates query rewriting, routing, retrieval (SQL and/or Vector),
     prompt rendering, and generation."""
@@ -48,7 +38,7 @@ def run_pipeline(
     route = route_query(standalone_q)
 
     sql_res: SQLResult | None = None
-    chunks: list[Any] = []
+    chunks: list[Chunk] = []
 
     # Retrieve data based on route
     if route in ("units", "both"):
@@ -56,8 +46,9 @@ def run_pipeline(
 
     if route in ("rules", "both"):
         if retriever is None:
-            retriever = VectorRetriever(SbertEmbedder())
-        chunks = retriever.retrieve(standalone_q, k=3)
+            # shared hybrid search (BM25 + vectors), the models are only loaded once
+            retriever = get_rulebook_retriever()
+        chunks = retriever.retrieve(standalone_q, k=settings.top_k)
 
     # Format context with Jinja2 prompt template
     prompt = render_prompt(
@@ -72,10 +63,19 @@ def run_pipeline(
     answer = llm.generate(prompt)
 
     return PipelineResult(
-        question=question,
-        standalone_question=standalone_q,
         answer=answer,
         route=route,
+        standalone_question=standalone_q,
+        rule_chunks=chunks,
         sql_result=sql_res,
-        retrieved_chunks=chunks,
     )
+
+
+class RagPipeline(BasePipeline):
+    """run_pipeline behind the shared BasePipeline interface, used by the evaluation."""
+
+    def __init__(self, retriever: BaseRetriever | None = None) -> None:
+        self.retriever = retriever
+
+    def run(self, question: str, history: list[Message]) -> PipelineResult:
+        return run_pipeline(question, history, retriever=self.retriever)

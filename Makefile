@@ -36,5 +36,5 @@ format:
 testset:  ## generate the RAGAS test set draft (many LLM calls), options size=20 rebuild=1
 	RAGAS_DO_NOT_TRACK=true uv run --group eval python scripts/generate_testset.py $(if $(size),--size $(size)) $(if $(rebuild),--rebuild-graph)
 
-eval:  ## run the RAGAS evaluation
-	RAGAS_DO_NOT_TRACK=true uv run --group eval python scripts/evaluate.py $(if $(part),--part $(part))
+eval:  ## run the RAGAS evaluation, options part=retrieval|answers|summary pipeline=baseline
+	RAGAS_DO_NOT_TRACK=true uv run --group eval python scripts/evaluate.py $(if $(part),--part $(part)) $(if $(pipeline),--pipeline $(pipeline))

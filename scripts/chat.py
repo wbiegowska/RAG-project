@@ -40,10 +40,11 @@ for message in st.session_state.messages:
                     else:
                         st.info("Query executed successfully, but returned no rows.")
 
-                if res.retrieved_chunks:
+                if res.rule_chunks:
                     st.markdown("### 📖 Retrieved Rule Chunks")
-                    for i, chunk in enumerate(res.retrieved_chunks, 1):
-                        st.markdown(f"**Chunk {i}**: {chunk}")
+                    for i, chunk in enumerate(res.rule_chunks, 1):
+                        st.markdown(f"**{i}. {chunk.section_path}** (page {chunk.page})")
+                        st.markdown(chunk.text)
 
 if prompt := st.chat_input("Ask a question about Warhammer 40k..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -74,10 +75,11 @@ if prompt := st.chat_input("Ask a question about Warhammer 40k..."):
                         else:
                             st.info("Query executed successfully, but returned no rows.")
 
-                    if pipeline_result.retrieved_chunks:
+                    if pipeline_result.rule_chunks:
                         st.markdown("### 📖 Retrieved Rule Chunks")
-                        for i, chunk in enumerate(pipeline_result.retrieved_chunks, 1):
-                            st.markdown(f"**Chunk {i}**: {chunk}")
+                        for i, chunk in enumerate(pipeline_result.rule_chunks, 1):
+                            st.markdown(f"**{i}. {chunk.section_path}** (page {chunk.page})")
+                            st.markdown(chunk.text)
 
                 st.session_state.messages.append(
                     {"role": "assistant", "content": answer, "result": pipeline_result}

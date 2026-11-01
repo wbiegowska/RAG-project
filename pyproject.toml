@@ -36,6 +36,8 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# ragas says evaluate() will change in its next big version, nothing to do for us
+filterwarnings = ['ignore:a?evaluate\(\) is deprecated:DeprecationWarning']
 
 [dependency-groups]
 dev = [

@@ -6,10 +6,13 @@ pytest.importorskip("ragas")
 
 from rag.base.chunk import Chunk  # noqa: E402
 from rag.base.llm import LLMClient  # noqa: E402
+from rag.base.pipeline import PipelineResult  # noqa: E402
 from rag.base.retriever import BaseRetriever  # noqa: E402
+from rag.base.sql import SQLResult  # noqa: E402
 from rag.evaluation.baseline import StandInPipeline  # noqa: E402
 from rag.evaluation.runner import (  # noqa: E402
     answer_with_retries,
+    contexts_of,
     evaluate_retrieval,
     hit_rate,
     reciprocal_rank,
@@ -82,6 +85,23 @@ def test_stand_in_pipeline_gives_the_chunks_to_the_llm():
     assert "don't know" in system
     assert result.answer == "You roll six D6."
     assert result.rule_chunks == [GRENADE]
+
+
+def test_contexts_of_adds_the_sql_rows():
+    sql = SQLResult(
+        question="q", sql="SELECT t FROM datasheets_models", columns=["t"], rows=[("4",)]
+    )
+    result = PipelineResult(answer="a", route="both", rule_chunks=[GRENADE], sql_result=sql)
+    contexts = contexts_of(result)
+    assert contexts[0] == embedding_text(GRENADE)
+    assert "SELECT t FROM datasheets_models" in contexts[1]
+    assert "('4',)" in contexts[1]
+
+
+def test_contexts_of_skips_a_failed_query():
+    sql = SQLResult(question="q", sql="SELECT nope", error="no such column: nope")
+    result = PipelineResult(answer="I don't know", route="units", sql_result=sql)
+    assert contexts_of(result) == []
 
 
 def test_summary_table():
