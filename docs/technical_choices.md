@@ -1,8 +1,9 @@
 # Technical choices
 
 This file explains the main choices we made and why. Parsing, retrieval, the Gemini client,
-evaluation and monitoring were done by Weronika, text-to-SQL, the router, the prompts and the
-chat interface by Ala.
+the evaluation and connecting the two parts were done by Weronika, text-to-SQL, the router,
+the prompts, the chat interface and the monitoring by Ala. The overall structure is in
+[architecture.md](architecture.md).
 
 ## Project setup
 
@@ -22,14 +23,15 @@ chat interface by Ala.
 
 ## Gemini client
 
-- Google AI Studio, with `gemini-3.8-flash` (the stable flash model of the free tier when we
-  did the project).
+- Google AI Studio, with **`gemini-3.1-flash-lite`** by default. On the free tier the flash
+  models allow only 20 requests per day and one chat question costs 2 to 5 calls, flash-lite
+  allows about 500. It's also the model we used in the evaluation.
 - Every LLM call goes through `get_llm()`, which always returns the same client. That way all
   the calls share one **throttle** (10 requests per minute by default), otherwise each part
   of the pipeline would count on its own and we would go over the free tier limit.
 - Retries on 429 and 5xx errors are done by the google-genai SDK. While testing we got a lot
   of `503 UNAVAILABLE` ("high demand"), so after 3 attempts the client switches to fallback
-  models (`gemini-3.6-flash`, then `gemini-3.5-flash-lite`) and prints a warning. Other
+  models (`gemini-3.5-flash-lite`, then `gemini-3.6-flash`) and prints a warning. Other
   errors (bad request, wrong key) are raised directly, another model wouldnt fix them.
 - Each request has a **60 s timeout**. When flash-lite was overloaded a request could hang
   for minutes and the chat just kept spinning, now after 60 s we also go to the next model
@@ -320,7 +322,7 @@ We implemented a lightweight, non-intrusive tracing and monitoring system in `sr
   - **Query Context**: The original user question and the rewritten standalone question.
   - **Routing & Execution State**: The intent route classified by the router (`rules`, `units`, or `both`).
   - **Source Attribution**: Retain IDs/metadata for all retrieved rulebook chunks and the exact generated SQL query string.
-  - **Latencies & Timing**: Total execution duration as well as per-step timing breakdown (routing, vector retrieval, Text-to-SQL execution, and final LLM synthesis).
-  - **Token Consumption**: Prompt tokens, completion tokens, and total Gemini API usage per turn.
+  - **Latencies & Timing**: Total execution duration of the turn.
   - **Error Auditability**: Caught exceptions and error messages across any step in the pipeline.
 - **Zero Framework Overhead**: Implemented in native Python without relying on heavy external tracking platforms (like LangChain, LangSmith, or LangFuse), keeping the execution fast, local, and completely self-contained.
+- **Current Limitations**: The trace file also contains `step_times_seconds` and `token_usage` fields, with helpers prepared for them (`record_step`, `trace_step`, `add_tokens`), but they are not wired into the pipeline yet, so these fields stay empty. Since the unit tests and the evaluation also run the pipeline, their turns are logged in the same file as the chat turns.

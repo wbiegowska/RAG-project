@@ -5,8 +5,8 @@ datasheets (SQLite database), using Gemini through Google AI Studio.
 
 ## Authors
 
-- **Weronika Biegowska**: Gemini client, rulebook parsing, chunking, retrieval, evaluation, monitoring
-- **Ala Karamkesh**: text-to-SQL, router and conversation memory, prompts, chat interface
+- **Weronika Biegowska**: Gemini client, rulebook parsing, chunking, retrieval, evaluation, connecting the two parts
+- **Ala Karamkesh**: text-to-SQL, router and conversation memory, prompts, chat interface, monitoring
 
 ## Setup & Quickstart
 
@@ -62,7 +62,10 @@ GOOGLE_API_KEY=your_actual_api_key_here
 | `make chat` | Start the Streamlit chat interface |
 | `make index` | Build/update the rulebook vector search index |
 | `make test` | Run the PyTest unit test suite |
-| `make eval` | Run the evaluation pipeline |
+| `make search q="..." mode=hybrid` | Try the rulebook search alone (`mode`: vector, hybrid or full) |
+| `make compare-retrieval` | Compare the three search setups on a few questions |
+| `make testset` | Generate the RAGAS test set draft (many Gemini calls, the reviewed one is `eval/testset.json`) |
+| `make eval` | Evaluate the search and the answers of the full pipeline (options: `part=retrieval`, `part=answers`, `part=summary`, `pipeline=baseline`) |
 | `make parse` | Re-parse the PDF (slow; parsed rulebook is already in `data/processed/`) |
 | `make lint` / `make format` | Check or auto-fix code formatting with Ruff |
 

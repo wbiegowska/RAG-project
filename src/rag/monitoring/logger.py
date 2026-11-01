@@ -15,6 +15,7 @@ class TraceLogger:
     def __init__(self, question: str):
         self.question = question
         self.start_time = time.time()
+        self.standalone_question: str | None = None
         self.route: str | None = None
         self.retrieved_chunk_ids: list[str] = []
         self.generated_sql: str | None = None
@@ -38,6 +39,7 @@ class TraceLogger:
         trace_entry = {
             "timestamp": datetime.now().isoformat(),
             "question": self.question,
+            "standalone_question": self.standalone_question,
             "route": self.route,
             "retrieved_chunk_ids": self.retrieved_chunk_ids,
             "generated_sql": self.generated_sql,
