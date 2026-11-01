@@ -1,10 +1,20 @@
-Database Schema:
+Database schema (data dictionary of wahadb.sqlite):
 {{ schema }}
 
-User Question: {{ question }}
+User question: {{ question }}
 
-Task: Write a single, read-only SQLite SELECT query to fetch the required information.
+Task: write ONE read-only SQLite SELECT query that answers the question.
 Rules:
+- Only use tables and columns from the data dictionary above.
+- Always select the unit name (datasheets.name) next to the values, so the answer can say which unit is which.
+- Unit names are not always written exactly, use LIKE with % for them.
 - Include a LIMIT clause (max 50 rows).
 - Do not use modifying keywords (DROP, DELETE, UPDATE, INSERT, etc.).
 - Return ONLY the raw SQL query without markdown or explanations.
+
+Examples:
+Question: What is the Toughness of an Intercessor Squad?
+SELECT d.name, m.name AS model, m.t FROM datasheets d JOIN datasheets_models m ON m.DatasheetId = d.Id WHERE d.name LIKE '%Intercessor Squad%' LIMIT 50
+
+Question: Which Space Marines units have the Grenades keyword?
+SELECT DISTINCT d.name FROM datasheets d JOIN factions f ON f.Id = d.factionId JOIN datasheets_keywords k ON k.DatasheetId = d.Id WHERE f.name = 'Space Marines' AND k.keyword = 'Grenades' LIMIT 50

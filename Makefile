@@ -22,8 +22,8 @@ compare-retrieval:  ## top 3 of a few test questions with vector / hybrid / full
 chat:  ## start the chat interface
 	uv run streamlit run scripts/chat.py
 
-test:
-	uv run pytest
+test:  ## unit tests, with the eval group so the ragas tests are not skipped
+	uv run --group eval pytest
 
 lint:
 	uv run ruff check .
