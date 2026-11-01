@@ -13,7 +13,7 @@ datasheets (SQLite database), using Gemini through Google AI Studio.
 Follow these steps to set up and run the project locally:
 
 ### Step 1: Install `uv`
-Install the `uv` package manager (if you haven't already):
+Install the `uv` package manager:
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
