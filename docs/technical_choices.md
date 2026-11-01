@@ -149,7 +149,113 @@ points.
 
 ## Evaluation
 
-(to do)
+We evaluate with RAGAS like in lab 3, only the rulebook part (no text-to-SQL testing, as
+asked). Everything is run with `make testset` and `make eval`, the results are in
+`eval/results/`.
+
+### Test set
+
+- Generated with ragas from **20 sections** of the cleaned rulebook, 1 to 3 per chapter. We
+  didnt use the whole book because of the free tier: building the knowledge graph costs 3
+  gemini calls per section (summary, themes, entities), plus the calls for the questions.
+  The knowledge graph is saved after every step, so when we hit the quota the next run
+  continued where it stopped instead of starting again.
+- The sections are short enough to be exactly one of our chunks, so the reference passages
+  of the questions are the text of our chunks (checked: 25 out of 25).
+- Question types from the course: half single-hop specific, a quarter multi-hop specific and
+  a quarter multi-hop abstract. We gave ragas two personas (a new player and an experienced
+  player) instead of letting it generate them, it saves calls.
+- Ragas generated 16 questions and we **checked all of them by hand**: 2 were removed (one
+  was not really a question, the other was two unrelated questions glued together), 1 was
+  reworded because the sentence didnt make sense, the typos were kept on purpose (ragas adds
+  them to test how robust the system is). We added the **3 rulebook questions of the
+  teacher** (grenades, how to use a stratagem, ways to score points) with reference answers
+  written from the rulebook.
+- Final test set: **17 questions** (8 single-hop, 3 multi-hop specific, 3 multi-hop
+  abstract, 3 from the teacher), frozen in `eval/testset.json`. The ragas draft and the
+  knowledge graph are kept next to it.
+
+### Retrieval
+
+For each search setup we take the top 5 chunks of every question and compare them with the
+reference passages:
+
+- **hit rate**: at least one reference passage is in the top 5
+- **MRR**: 1 / rank of the first reference passage (1 if it's first, 0.5 if second...)
+- **context recall and precision** from ragas, the non-LLM versions (string similarity), so
+  no gemini calls and the results dont depend on a judge
+
+We compare the texts and not chunk ids, as said in the course ragas chunks the documents its
+own way, here it works because the reference passages are exactly our chunks.
+
+| setup | hit rate | MRR | context recall | context precision |
+|---|---|---|---|---|
+| vector | 0.94 | 0.83 | 0.87 | 0.79 |
+| **hybrid (default)** | 0.94 | 0.85 | 0.87 | 0.82 |
+| hybrid + reranker | 0.94 | 0.85 | 0.81 | 0.86 |
+
+- All setups find a right passage for 16 of the 17 questions.
+- Hybrid is as good or better than vector on every metric, so BM25 is worth it.
+- The reranker improves the precision but loses recall: on two multi-hop questions it
+  pushed one of the two needed passages out of the top 5. Same conclusion as our first test
+  on 5 questions, so it stays off by default.
+- The only question missed by all setups ("When does the Charge phase occur?") has as
+  reference the intro of the shooting phase, which only mentions in passing that the charge
+  phase comes next. The search finds the charge phase section instead, which is not wrong.
+  It's a good example of why generated questions have to be checked.
+- For "ways to score points" the scoring rule is #4 with vector, #1 with hybrid and #2 with
+  the reranker, but all setups find only 1 of the 3 passages about Victory points.
+- One case where BM25 hurts: "What does a Transport do?" is #1 with vector but #5 with
+  hybrid, the other transport sections repeat the word "transport" a lot.
+
+### Answers
+
+Until the full pipeline (router, SQL, memory) is ready, the answers come from a **stand-in
+pipeline** (`src/rag/evaluation/baseline.py`): hybrid search, top 5 chunks, and one call to
+`gemini-3.1-flash-lite` with a short prompt (answer only from the rules, say you dont know
+otherwise, cite section and page). It will also be the baseline to compare the full pipeline
+with.
+
+- **Judge: `gemini-3.5-flash-lite`**, different from and newer than the model answering, as
+  recommended in the course. On the free tier the flash models only allow 20 requests per
+  day, which is not enough for a judge (about 140 calls for one run), so we used the two
+  flash-lite models (about 500 requests per day each).
+- No fallback models during the evaluation, so every answer and every score comes from the
+  same model. When gemini answers 503 ("high demand") we wait 30 s and try again.
+- Metrics: **faithfulness** (is everything in the answer supported by the retrieved chunks),
+  **answer relevancy** (does it answer the question, with strictness 1 to save calls) and
+  **factual correctness** (F1 between the claims of the answer and of the reference).
+
+| questions | n | faithfulness | answer relevancy | factual correctness |
+|---|---|---|---|---|
+| all | 17 | 0.91 | 0.79 | 0.60 |
+| single-hop | 8 | 0.99 | 0.65 | 0.55 |
+| multi-hop specific | 3 | 0.50 | 0.93 | 0.56 |
+| multi-hop abstract | 3 | 1.00 | 0.93 | 0.80 |
+| teacher questions | 3 | 1.00 | 0.91 | 0.59 |
+
+- The answers stick to the retrieved rules (faithfulness 0.91) and cite the sections and
+  pages. When the search missed the passage (charge phase question) the model answered "I do
+  not know" instead of making something up, which is what we want even if it scores 0 for
+  relevancy and correctness.
+- Some single scores are clearly noise from the judge: "Can I use the same stratagem twice
+  in the shooting phase?" got a correct answer quoting the exact rule but factual
+  correctness 0 and faithfulness 0.5, and a good answer about the movement phase got
+  relevancy 0. A small judge model and strictness 1 make single scores unreliable, the
+  averages are more meaningful.
+- "Ways to score points" is the weakest teacher question (factual correctness 0.25) because
+  the search only finds one of the three passages about Victory points.
+
+### Limitations
+
+- 17 questions is small (the project asked for about 10): one question changes an average
+  by about 0.06, so the differences between the search setups are trends, not proof.
+- Nothing about terrain, aircraft, reserves or datasheets in the generated questions, ragas
+  chose the topics from the links it found between the 20 sections.
+- The judge is a small model (see above) and every run costs a good part of the daily free
+  quota, so we couldnt run it many times.
+- ragas 0.4.3 doesnt import with the latest langchain-community (a module it uses was
+  removed in 0.4.2), so `langchain-community<0.4.2` is pinned in the eval group.
 
 ## Monitoring
 
