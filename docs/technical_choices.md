@@ -282,4 +282,14 @@ with.
 
 ## Monitoring
 
-(to do)
+We implemented a lightweight, non-intrusive tracing and monitoring system in `src/rag/monitoring/logger.py` to record live execution metrics for every turn of the chat pipeline.
+
+- **`TraceLogger` Context Manager**: Wrapped directly around `run_pipeline` in `src/rag/pipeline.py`. It tracks pipeline steps without modifying function signatures or return types, preserving full backward compatibility with tests and evaluation scripts.
+- **Turn-Level Telemetry**: Every execution turn appends a structured JSON line to `eval/results/chat_traces.jsonl`. Captured fields include:
+  - **Query Context**: The original user question and the rewritten standalone question.
+  - **Routing & Execution State**: The intent route classified by the router (`rules`, `units`, or `both`).
+  - **Source Attribution**: Retain IDs/metadata for all retrieved rulebook chunks and the exact generated SQL query string.
+  - **Latencies & Timing**: Total execution duration as well as per-step timing breakdown (routing, vector retrieval, Text-to-SQL execution, and final LLM synthesis).
+  - **Token Consumption**: Prompt tokens, completion tokens, and total Gemini API usage per turn.
+  - **Error Auditability**: Caught exceptions and error messages across any step in the pipeline.
+- **Zero Framework Overhead**: Implemented in native Python without relying on heavy external tracking platforms (like LangChain, LangSmith, or LangFuse), keeping the execution fast, local, and completely self-contained.
