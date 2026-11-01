@@ -23,7 +23,7 @@ import pandas as pd
 from ragas import EvaluationDataset, SingleTurnSample, evaluate
 from ragas.run_config import RunConfig
 
-from rag.base.pipeline import BasePipeline
+from rag.base.pipeline import BasePipeline, PipelineResult
 from rag.base.retriever import BaseRetriever
 from rag.impl.retriever.vector import embedding_text
 
@@ -105,7 +105,7 @@ def evaluate_answers(
     testset: list[dict], pipeline: BasePipeline, judge_llm, embeddings
 ) -> pd.DataFrame:
     """The pipeline answers each question, then the judge scores the answers."""
-    samples, kept = [], []
+    samples, kept, routes = [], [], []
     for number, item in enumerate(testset, start=1):
         print(f"Answering {number}/{len(testset)}: {item['user_input'][:70]}")
         try:
@@ -117,11 +117,12 @@ def evaluate_answers(
             SingleTurnSample(
                 user_input=item["user_input"],
                 response=result.answer,
-                retrieved_contexts=[embedding_text(c) for c in result.rule_chunks],
+                retrieved_contexts=contexts_of(result),
                 reference=item["reference"],
             )
         )
         kept.append(item)
+        routes.append(result.route)
 
     metrics = [Faithfulness(), ResponseRelevancy(strictness=1), FactualCorrectness()]
     scores = evaluate(
@@ -132,7 +133,18 @@ def evaluate_answers(
         run_config=RUN_CONFIG,
     ).to_pandas()
     scores.insert(1, "type", [item.get("synthesizer_name", "") for item in kept])
+    scores.insert(2, "route", routes)
     return short_metric_names(scores)
+
+
+def contexts_of(result: PipelineResult) -> list[str]:
+    """Everything the model got to answer: the rule chunks and the SQL rows if any."""
+    contexts = [embedding_text(c) for c in result.rule_chunks]
+    sql = result.sql_result
+    if sql and not sql.error:
+        rows = "\n".join(str(row) for row in sql.rows)
+        contexts.append(f"SQL query: {sql.sql}\nColumns: {sql.columns}\n{rows}")
+    return contexts
 
 
 def short_metric_names(scores: pd.DataFrame) -> pd.DataFrame:

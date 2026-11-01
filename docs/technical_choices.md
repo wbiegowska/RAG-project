@@ -10,11 +10,13 @@ chat interface by Ala.
   the PDF again) and `eval` (ragas), so running the chat doesn't need them. `make install`
   installs everything.
 - **ruff** for linting and formatting, run by a pre-commit git hook so the code stays
-  consistent between the two authors.
+  consistent between the two of us.
 - **pydantic-settings**: every setting (model names, paths, retrieval parameters) is in
   `src/rag/settings.py` and can be overridden in `.env`. The API key is only in `.env`, which
   is not in git: copy `.env.example` to `.env` and paste your key.
-* **Base / Impl Modular Architecture**: Core abstract base classes and dataclasses in `src/rag/base` (`Chunk`, `BaseRetriever`, `LLMClient`, `SQLResult`, and `BasePipeline`) were established up front to define strict interface contracts. This decoupled component implementation from system integration, allowing concurrent, parallel development across database, retrieval, and pipeline modules without blocking dependencies.
+- **base / impl**: the abstract classes and dataclasses in `src/rag/base` (Chunk,
+  BaseRetriever, LLMClient, SQLResult, BasePipeline) were written first, so we could each work
+  on our half of the project without waiting for the other.
 - The PDF and the SQLite database are not in git (too big). The parsed rulebook is, since
   parsing it again takes several minutes.
 
@@ -24,14 +26,17 @@ chat interface by Ala.
   did the project).
 - Every LLM call goes through `get_llm()`, which always returns the same client. That way all
   the calls share one **throttle** (10 requests per minute by default), otherwise each part
-  of the pipeline would count on its own and would go over the free tier limit.
+  of the pipeline would count on its own and we would go over the free tier limit.
 - Retries on 429 and 5xx errors are done by the google-genai SDK. While testing we got a lot
   of `503 UNAVAILABLE` ("high demand"), so after 3 attempts the client switches to fallback
   models (`gemini-3.6-flash`, then `gemini-3.5-flash-lite`) and prints a warning. Other
   errors (bad request, wrong key) are raised directly, another model wouldnt fix them.
+- Each request has a **60 s timeout**. When flash-lite was overloaded a request could hang
+  for minutes and the chat just kept spinning, now after 60 s we also go to the next model
+  (and if none is left the chat shows the error).
 - The temperature is left at the default, google recommends it for the gemini 3 models.
-- For the evaluation we will have to turn the fallback off or record which model answered,
-  otherwise the scores could mix two models.
+- For the evaluation the fallback is turned off, otherwise the scores could mix two models
+  (see Evaluation).
 
 ## Parsing
 
@@ -133,11 +138,11 @@ points.
 
 We implemented a robust Text-to-SQL pipeline targeting `wahadb.sqlite` to query unit statistics, weapon profiles, stratagems, and abilities.
 
-* **Schema Ingestion & Few-Shot Prompting**: The SQL generation prompt includes the database schema and explicit rules (e.g., distinguishing between unit keywords like Space Marines and actual unit names).
+* **Schema Ingestion & Few-Shot Prompting**: The SQL generation prompt (`sql.jinja`) includes the full data dictionary provided with the project (`data/SQL_AGENT_DATA_DICTIONARY.md`), explicit rules (e.g., always selecting the unit name next to the requested values, matching unit names with `LIKE`) and two few-shot example queries.
 * **Execution Safety**:
   * The database connection is strictly opened in read-only mode (`?mode=ro`).
-  * Only single-statement `SELECT` queries are permitted; dangerous operations (`DROP`, `DELETE`, `UPDATE`, multi-statements) are rejected prior to execution.
-  * Queries are forced to include a `LIMIT` clause to prevent resource exhaustion.
+  * Only single-statement `SELECT` (or `WITH ... SELECT`) queries are permitted; dangerous operations (`DROP`, `DELETE`, `UPDATE`, `PRAGMA`, multi-statements) are rejected prior to execution.
+  * The prompt requires a `LIMIT` clause, and at most 50 rows are fetched (`fetchmany`) to prevent resource exhaustion.
 * **Self-Correction & Fallbacks**: If SQL execution fails due to a syntax error or missing table/column, the exception is caught, and the error context is sent back to Gemini for a single retry attempt before returning a graceful failure in `SQLResult`.
 
 ## Router and conversation memory
@@ -146,29 +151,29 @@ To handle multi-turn interactions and route queries efficiently, we built an age
 
 * **Query Rewriting**: Multi-turn follow-up questions (e.g., *"And its save?"*) are rewritten using `rewrite.jinja` into clear, self-contained standalone questions using the prior conversation context before reaching the retriever or router.
 * **Intent Routing**: A structured router classifies standalone queries into three intent routes:
-  * `rules`: Vector/hybrid retrieval over rulebook text.
+  * `rules`: Hybrid retrieval (BM25 + vector search) over rulebook text.
   * `units`: Text-to-SQL queries over unit statistics and database tables.
   * `both`: Dual execution combining both sources for queries requiring both rule definitions and specific unit characteristics.
-* **Pipeline Dataclass (`PipelineResult`)**: Encapsulates state across execution steps, maintaining the original question, standalone rewritten query, active route, SQL results, retrieved chunks, and generated answer.
+* **Pipeline Dataclass (`PipelineResult`)**: The shared dataclass from `src/rag/base` encapsulates the result of each turn: standalone rewritten query, active route, SQL results, retrieved chunks, and generated answer. It is read by both the chat interface and the evaluation (`RagPipeline` exposes the same pipeline through the `BasePipeline` interface).
 
 ## Prompts
 
-Prompt engineering was standardized using Jinja2 templates (`src/rag/impl/prompts/`):
+Prompt engineering was standardized using Jinja2 templates (`src/rag/prompts/`):
 
 * **Modular Template Structure**: Distinct templates for `rewrite.jinja`, `router.jinja`, `sql.jinja`, and `answer.jinja`.
 * **Context Formatting & Grounding**:
   * Rulebook chunks are formatted with section headers and page metadata for exact citation.
   * SQL execution results include both the rendered SQL query string and tabular row outputs.
-  * System instructions enforce strict factual grounding: the model is instructed to answer strictly using the provided context and respond with *"I don't know based on the provided context"* when information is missing.
+  * The answer prompt enforces strict factual grounding: the model is instructed to answer strictly using the provided context and respond with *"I don't know based on the provided context"* when information is missing.
 
-### Chat Interface & Technical Choices
+## Chat Interface
 
 * **Streamlit Framework**: We used Streamlit to quickly build a clean web UI in pure Python without needing a separate frontend setup.
 * **Conversation History (`st.session_state`)**: Chat history is saved across turns using `st.session_state.messages`. This passes past turns to our query rewriter, so follow-up questions (like *"how do I use it?"*) resolve correctly.
 * **Sources & Details Expander**: Each response includes a dropdown menu (`st.expander("🔍 View Sources & Details")`) to show how the system worked:
-  * **Route**: Shows if the question went to vector search (`rules`) or Text-to-SQL (`units`).
+  * **Route**: Shows if the question went to hybrid search (`rules`), Text-to-SQL (`units`) or both (`both`).
   * **Rewritten Query**: Displays the full standalone question created by the rewriter.
-  * **Retrieved Data**: Shows the raw rulebook text chunks (with page numbers and scores) or the generated SQL query and database results.
+  * **Retrieved Data**: Shows the rulebook text chunks (with section path and page number) and/or the generated SQL query with the database results (or the error message if the query failed).
 
 ## Evaluation
 
@@ -233,11 +238,17 @@ own way, here it works because the reference passages are exactly our chunks.
 
 ### Answers
 
-Until the full pipeline (router, SQL, memory) is ready, the answers come from a **stand-in
-pipeline** (`src/rag/evaluation/baseline.py`): hybrid search, top 5 chunks, and one call to
-`gemini-3.1-flash-lite` with a short prompt (answer only from the rules, say you dont know
-otherwise, cite section and page). It will also be the baseline to compare the full pipeline
-with.
+We compare two pipelines on the same 17 questions, both answer with `gemini-3.1-flash-lite`:
+
+- **full pipeline** (`RagPipeline`, `make eval part=answers`): the real chat pipeline, with
+  the router, the text-to-SQL when the router asks for it and the answer prompt
+  `answer.jinja`. The questions are single turn so the rewriting step isnt used.
+- **baseline** (`src/rag/evaluation/baseline.py`, `make eval part=answers pipeline=baseline`):
+  hybrid search, top 5 chunks and one gemini call with a short system prompt (answer only
+  from the rules, say you dont know otherwise, cite section and page). We wrote it to
+  evaluate the answers before the full pipeline was ready.
+
+How we score them:
 
 - **Judge: `gemini-3.5-flash-lite`**, different from and newer than the model answering, as
   recommended in the course. On the free tier the flash models only allow 20 requests per
@@ -245,29 +256,47 @@ with.
   flash-lite models (about 500 requests per day each).
 - No fallback models during the evaluation, so every answer and every score comes from the
   same model. When gemini answers 503 ("high demand") we wait 30 s and try again.
-- Metrics: **faithfulness** (is everything in the answer supported by the retrieved chunks),
-  **answer relevancy** (does it answer the question, with strictness 1 to save calls) and
-  **factual correctness** (F1 between the claims of the answer and of the reference).
+- Metrics: **faithfulness** (is everything in the answer supported by the context the model
+  got: the chunks, and the SQL rows for the full pipeline), **answer relevancy** (does it
+  answer the question, with strictness 1 to save calls) and **factual correctness** (F1
+  between the claims of the answer and of the reference).
+
+Full pipeline, baseline in brackets (`eval/results/answers_full_summary.md` and
+`answers_baseline_summary.md`):
 
 | questions | n | faithfulness | answer relevancy | factual correctness |
 |---|---|---|---|---|
-| all | 17 | 0.91 | 0.79 | 0.60 |
-| single-hop | 8 | 0.99 | 0.65 | 0.55 |
-| multi-hop specific | 3 | 0.50 | 0.93 | 0.56 |
-| multi-hop abstract | 3 | 1.00 | 0.93 | 0.80 |
-| teacher questions | 3 | 1.00 | 0.91 | 0.59 |
+| all | 17 | 0.89 (0.91) | 0.89 (0.79) | 0.56 (0.60) |
+| single-hop | 8 | 0.94 (0.99) | 0.89 (0.65) | 0.56 (0.55) |
+| multi-hop specific | 3 | 0.63 (0.50) | 0.92 (0.93) | 0.50 (0.56) |
+| multi-hop abstract | 3 | 1.00 (1.00) | 0.90 (0.93) | 0.70 (0.80) |
+| teacher questions | 3 | 0.93 (1.00) | 0.85 (0.91) | 0.48 (0.59) |
 
-- The answers stick to the retrieved rules (faithfulness 0.91) and cite the sections and
-  pages. When the search missed the passage (charge phase question) the model answered "I do
-  not know" instead of making something up, which is what we want even if it scores 0 for
-  relevancy and correctness.
+- **Router**: 15 questions went to `rules` and 2 to `both` ("Can a Grenades unit use the
+  Grenade stratagem...?" and "Where can I find more Stratagems and the points values of the
+  units?"), none only to the database. The 2 `both` make sense, they mention a unit or points
+  values.
+- The full pipeline answers more often: relevancy goes from 0.79 to 0.89. Most of it comes
+  from 2 single-hop questions, the movement phase one (0 to 0.94, the 0 of the baseline
+  looked like judge noise) and the charge phase one (0 to 0.88).
+- The charge phase question is also the bad side of it. The search doesn't find the
+  reference passage, the baseline said "I don't know", but the full pipeline wrote an answer
+  from the charge phase section that is not really right (factual correctness 0). The
+  baseline's system prompt is stricter about not answering than `answer.jinja`.
+- Faithfulness and correctness are a bit lower (-0.02 and -0.04), that's less than one
+  question (~0.06), so we can't say that one pipeline is better there.
+- "Ways to score points" is still the weakest teacher question (correctness 0, baseline
+  0.25): the model says the progressive objectives are "the only way" to score because the
+  search finds only 1 of the 3 passages about Victory points.
 - Some single scores are clearly noise from the judge: "Can I use the same stratagem twice
-  in the shooting phase?" got a correct answer quoting the exact rule but factual
-  correctness 0 and faithfulness 0.5, and a good answer about the movement phase got
-  relevancy 0. A small judge model and strictness 1 make single scores unreliable, the
+  in the shooting phase?" got a correct answer quoting the exact rule in both pipelines but
+  faithfulness 0.5. A small judge model and strictness 1 make single scores unreliable, the
   averages are more meaningful.
-- "Ways to score points" is the weakest teacher question (factual correctness 0.25) because
-  the search only finds one of the three passages about Victory points.
+- The full pipeline costs 2 gemini calls per question here (router + answer), 3 or 4 when
+  the route is `both`, the baseline only 1.
+- This run was done before we fixed the text-to-SQL prompt (see Text-to-SQL). Only the 2
+  `both` questions went through the SQL step, and their answers come from the rulebook
+  part.
 
 ### Limitations
 
@@ -275,6 +304,8 @@ with.
   by about 0.06, so the differences between the search setups are trends, not proof.
 - Nothing about terrain, aircraft, reserves or datasheets in the generated questions, ragas
   chose the topics from the links it found between the 20 sections.
+- The text-to-SQL part has no automatic evaluation (only the rulebook was asked), we tested
+  it by hand in the chat and with unit tests on a small database.
 - The judge is a small model (see above) and every run costs a good part of the daily free
   quota, so we couldnt run it many times.
 - ragas 0.4.3 doesnt import with the latest langchain-community (a module it uses was

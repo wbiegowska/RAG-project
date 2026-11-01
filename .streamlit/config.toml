@@ -1,0 +1,5 @@
+[server]
+# streamlit's file watcher looks into every imported module, and with transformers that
+# triggers imports of optional packages (torchvision...) and prints long errors. Not needed
+# to use the chat, restart it after changing the code.
+fileWatcherType = "none"

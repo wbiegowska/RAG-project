@@ -3,6 +3,7 @@ and dont use any of the free tier quota."""
 
 from types import SimpleNamespace
 
+import httpx
 import pytest
 from google.genai import errors
 
@@ -113,6 +114,29 @@ def test_falls_back_to_next_model_when_overloaded():
         "main-model",
         "backup-model",
     ]
+
+
+class SlowModels(FakeModels):
+    """The main model never answers in time."""
+
+    def generate_content(self, **kwargs):
+        if kwargs["model"] == "main-model":
+            self.calls.append(kwargs)
+            raise httpx.ReadTimeout("too slow")
+        return super().generate_content(**kwargs)
+
+
+def test_falls_back_when_a_model_takes_too_long():
+    models = SlowModels()
+    client = make_client(models, fallback_models=["backup-model"])
+    assert client.generate("Say hello") == "Hello there"
+    assert [call["model"] for call in models.calls] == ["main-model", "backup-model"]
+
+
+def test_timeout_is_raised_when_there_is_no_other_model():
+    client = make_client(SlowModels())
+    with pytest.raises(httpx.TimeoutException):
+        client.generate("Say hello")
 
 
 def test_no_fallback_for_other_errors():

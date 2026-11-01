@@ -8,6 +8,7 @@ from collections.abc import Callable, Iterator
 from functools import lru_cache
 from typing import Any
 
+import httpx
 from google import genai
 from google.genai import errors, types
 
@@ -22,6 +23,10 @@ RETRY_OPTIONS = types.HttpRetryOptions(attempts=3, initial_delay=5.0, max_delay=
 
 # overloaded (503) or out of quota (429), the 503 "high demand" happens a lot on free tier
 FALLBACK_CODES = {429, 503}
+
+# without a timeout a request to an overloaded model can hang for minutes, after this we
+# also switch to the next model
+REQUEST_TIMEOUT_MS = 60_000
 
 
 class MissingAPIKeyError(RuntimeError):
@@ -84,7 +89,7 @@ class GeminiClient(LLMClient):
             )
         return genai.Client(
             api_key=settings.google_api_key,
-            http_options=types.HttpOptions(retry_options=RETRY_OPTIONS),
+            http_options=types.HttpOptions(retry_options=RETRY_OPTIONS, timeout=REQUEST_TIMEOUT_MS),
         )
 
     def generate(self, prompt: str, system: str | None = None) -> str:
@@ -95,7 +100,7 @@ class GeminiClient(LLMClient):
                 response = self._client.models.generate_content(
                     model=model, contents=prompt, config=self._config(system)
                 )
-            except errors.APIError as error:
+            except (errors.APIError, httpx.TimeoutException) as error:
                 if self._should_fall_back(error, model, models[i + 1 :]):
                     continue
                 raise
@@ -120,22 +125,24 @@ class GeminiClient(LLMClient):
                         started = True
                         yield chunk.text
                 return
-            except errors.APIError as error:
+            except (errors.APIError, httpx.TimeoutException) as error:
                 # cant switch model once part of the answer is shown
                 if not started and self._should_fall_back(error, model, models[i + 1 :]):
                     continue
                 raise
 
     @staticmethod
-    def _should_fall_back(error: errors.APIError, model: str, next_models: list[str]) -> bool:
-        if error.code not in FALLBACK_CODES or not next_models:
+    def _should_fall_back(error: Exception, model: str, next_models: list[str]) -> bool:
+        if not next_models:
             return False
+        if isinstance(error, errors.APIError):
+            if error.code not in FALLBACK_CODES:
+                return False
+            reason = f"{error.code} {error.status}"
+        else:
+            reason = f"no answer after {REQUEST_TIMEOUT_MS // 1000}s"
         logger.warning(
-            "Gemini model %s failed (%s %s), trying %s instead",
-            model,
-            error.code,
-            error.status,
-            next_models[0],
+            "Gemini model %s failed (%s), trying %s instead", model, reason, next_models[0]
         )
         return True
 

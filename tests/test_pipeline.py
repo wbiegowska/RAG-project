@@ -1,7 +1,9 @@
 from unittest.mock import MagicMock, patch
 
+from rag.base.pipeline import BasePipeline
 from rag.base.sql import SQLResult
-from rag.pipeline import PipelineResult, rewrite_query, run_pipeline
+from rag.pipeline import PipelineResult, RagPipeline, rewrite_query, run_pipeline
+from rag.settings import settings
 
 
 @patch("rag.pipeline.get_llm")
@@ -63,5 +65,36 @@ def test_pipeline_rules_route(mock_route, mock_llm):
     result = run_pipeline("How does cover work?", retriever=mock_retriever)
 
     assert result.route == "rules"
-    assert len(result.retrieved_chunks) == 1
+    assert len(result.rule_chunks) == 1
+
+
+@patch("rag.pipeline.get_llm")
+@patch("rag.pipeline.get_rulebook_retriever")
+@patch("rag.pipeline.route_query")
+def test_pipeline_uses_the_shared_hybrid_search_by_default(mock_route, mock_factory, mock_llm):
+    mock_route.return_value = "rules"
+    mock_factory.return_value.retrieve.return_value = []
+    mock_llm.return_value.generate.return_value = "Cover gives +1 to armor save."
+
+    run_pipeline("How does cover work?")
+
+    mock_factory.return_value.retrieve.assert_called_once_with(
+        "How does cover work?", k=settings.top_k
+    )
+
+
+@patch("rag.pipeline.get_llm")
+@patch("rag.pipeline.route_query")
+def test_rag_pipeline_follows_the_base_interface(mock_route, mock_llm):
+    mock_route.return_value = "rules"
+    retriever = MagicMock()
+    retriever.retrieve.return_value = []
+    mock_llm.return_value.generate.return_value = "Cover gives +1 to armor save."
+
+    pipeline = RagPipeline(retriever=retriever)
+    result = pipeline.run("How does cover work?", history=[])
+
+    assert isinstance(pipeline, BasePipeline)
+    assert result.route == "rules"
+    assert result.answer == "Cover gives +1 to armor save."
     assert "Cover gives +1" in result.answer
