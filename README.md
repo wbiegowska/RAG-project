@@ -69,21 +69,6 @@ GOOGLE_API_KEY=your_actual_api_key_here
 | `make parse` | Re-parse the PDF (slow; parsed rulebook is already in `data/processed/`) |
 | `make lint` / `make format` | Check or auto-fix code formatting with Ruff |
 
-## Example Queries & Validation
-
-The system successfully routes and resolves single-source and multi-source queries:
-
-### 1. Rules / Mechanics (`rules` route)
-* **Query:** *"What are the rules for throwing a grenade?"*
-* **Result:** Successfully retrieves Chunk 0148 (Page 42) detailing the Shooting phase timing, 8" range restriction, visible target condition, and rolling six D6 for mortal wounds on 4+.
-
-### 2. Unit Statistics & Costs (`units` route)
-* **Query:** *"What is the Toughness stat of an Intercessor Squad?"*
-* **Result:** Successfully queries `wahadb.sqlite` via Text-to-SQL and returns a Toughness of 4 for Intercessor and Assault Intercessor squads (and 6 for Heavy Intercessors).
-
-### 3. Combined / Hybrid Query (`both` route)
-* **Query:** *"Can an Intercessor Squad use the Grenade stratagem, and what does it do?"*
-* **Result:** Combines database keyword checking (verifying the unit's eligibility) with vector search over the rulebook to explain the full Grenade stratagem mechanics.
 
 ## Documentation
 
