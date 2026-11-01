@@ -1,0 +1,13 @@
+Given the following conversation history and a follow-up question, rewrite the follow-up question to be a standalone, self-contained question.
+Do NOT answer the question. Return ONLY the rewritten standalone question.
+
+{% if history %}
+Conversation History:
+{% for msg in history %}
+{{ msg.role }}: {{ msg.content }}
+{% endfor %}
+{% endif %}
+
+Follow-up Question: {{ question }}
+
+Standalone Question:
